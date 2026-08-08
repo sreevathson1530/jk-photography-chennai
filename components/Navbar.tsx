@@ -39,7 +39,7 @@ export function Navbar() {
     };
   }, [open]);
 
-  // Hide top bar on homepage hero — desktop only; mobile always keeps nav visible
+  // Hide top bar on homepage hero until user scrolls (all screen sizes)
   const hideOnHero = isHome && !pastHero && !open;
 
   const mobileMenu =
@@ -117,7 +117,7 @@ export function Navbar() {
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
           hideOnHero
-            ? "max-lg:translate-y-0 max-lg:opacity-100 lg:pointer-events-none lg:-translate-y-full lg:opacity-0"
+            ? "pointer-events-none -translate-y-full opacity-0"
             : "translate-y-0 opacity-100"
         } ${
           scrolled || open || !isHome
@@ -231,11 +231,11 @@ export function Navbar() {
 
       {mounted && mobileMenu ? createPortal(mobileMenu, document.body) : null}
 
-      {/* Desktop-only floating menu on homepage hero */}
+      {/* Floating menu on homepage hero when bar is hidden */}
       {isHome && !pastHero && !open && (
         <button
           type="button"
-          className="pointer-events-auto fixed top-5 right-5 z-[60] hidden h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-white/30 bg-black/35 text-white backdrop-blur-md lg:inline-flex lg:top-6 lg:right-8"
+          className="pointer-events-auto fixed top-5 right-5 z-[60] inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-white/30 bg-black/35 text-white backdrop-blur-md sm:top-6 sm:right-6 lg:right-8"
           aria-label="Open menu"
           onClick={() => setOpen(true)}
         >

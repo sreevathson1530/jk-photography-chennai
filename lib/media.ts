@@ -23,6 +23,8 @@ export type HeroItem = {
   jpg: string;
   alt: string;
   objectPosition?: string;
+  /** Values below 1 zoom out (show more of the image). */
+  scale?: number;
 };
 
 export type FilmItem = {

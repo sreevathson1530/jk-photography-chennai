@@ -35,8 +35,8 @@ export function HeroCarousel({ images }: Props) {
   }, [slides.length]);
 
   const current = slides[index];
-  // Prefer JPG for hero so Next cache / webp stale files don't stick
   const src = current.jpg || current.src;
+  const slideScale = current.scale ?? 1;
 
   return (
     <section className="relative h-[100svh] min-h-[520px] max-h-[900px] w-full overflow-hidden bg-[#0c0c0c] sm:min-h-[600px]">
@@ -44,8 +44,8 @@ export function HeroCarousel({ images }: Props) {
         <motion.div
           key={current.id}
           className="absolute inset-0"
-          initial={{ opacity: 0, scale: 1.04 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, scale: slideScale * 1.04 }}
+          animate={{ opacity: 1, scale: slideScale }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
         >
@@ -66,7 +66,7 @@ export function HeroCarousel({ images }: Props) {
         </motion.div>
       </AnimatePresence>
 
-      <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-10 pt-[7.5rem] sm:px-5 sm:pb-16 sm:pt-28 md:px-8 md:pb-20">
+      <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-10 pt-24 sm:px-5 sm:pb-16 sm:pt-28 md:px-8 md:pb-20">
         <motion.p
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}

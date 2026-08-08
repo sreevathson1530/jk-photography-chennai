@@ -7,7 +7,7 @@
       "avif": "/media/cover/cover-01.avif?v=msev8ntj",
       "jpg": "/media/cover/cover-01.jpg?v=msev8ntj",
       "alt": "JK Photography cinematic wedding cover",
-      "objectPosition": "center 30%"
+      "objectPosition": "38% 26%"
     },
     {
       "id": "cover-02-msev8ntj",
@@ -15,7 +15,7 @@
       "avif": "/media/cover/cover-02.avif?v=msev8ntj",
       "jpg": "/media/cover/cover-02.jpg?v=msev8ntj",
       "alt": "JK Photography cinematic wedding cover",
-      "objectPosition": "center 30%"
+      "objectPosition": "36% 26%"
     },
     {
       "id": "cover-03-msev8ntj",
@@ -23,7 +23,8 @@
       "avif": "/media/cover/cover-03.avif?v=msev8ntj",
       "jpg": "/media/cover/cover-03.jpg?v=msev8ntj",
       "alt": "JK Photography cinematic wedding cover",
-      "objectPosition": "center 30%"
+      "objectPosition": "center 30%",
+      "scale": 0.9
     },
     {
       "id": "cover-04-msev8ntj",
