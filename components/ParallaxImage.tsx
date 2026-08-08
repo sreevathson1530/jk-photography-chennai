@@ -65,7 +65,7 @@ export function ParallaxImage({ src, alt, className = "" }: Props) {
           alt={alt}
           fill
           sizes="(max-width: 768px) 100vw, 50vw"
-          quality={80}
+          unoptimized
           className="object-cover"
           style={{ objectPosition: "center 20%" }}
         />
