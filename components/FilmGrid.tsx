@@ -32,6 +32,7 @@ export function FilmGrid({ films }: Props) {
                 fill
                 sizes="(max-width: 768px) 100vw, 33vw"
                 quality={75}
+                unoptimized
                 className="object-cover transition duration-700 group-hover:scale-[1.04]"
                 style={{ objectPosition: "center 25%" }}
               />

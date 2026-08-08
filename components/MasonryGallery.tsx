@@ -13,8 +13,8 @@ import {
   Maximize2,
 } from "lucide-react";
 import { portfolioFilters } from "@/lib/data";
-import type { GalleryItem } from "@/lib/media";
 import { publicImageSrc } from "@/lib/image-src";
+import type { GalleryItem } from "@/lib/media";
 
 type Props = {
   items: GalleryItem[];

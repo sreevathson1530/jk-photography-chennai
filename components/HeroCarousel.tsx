@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { brand } from "@/lib/data";
-import { publicImageSrc } from "@/lib/image-src";
+import { heroImageSrc } from "@/lib/image-src";
 import type { HeroItem } from "@/lib/media";
 
 type Props = {
@@ -26,73 +26,50 @@ export function HeroCarousel({ images }: Props) {
       ];
 
   const [index, setIndex] = useState(0);
+  const firstPaint = useRef(true);
 
   useEffect(() => {
     if (slides.length < 2) return;
     const id = window.setInterval(() => {
+      firstPaint.current = false;
       setIndex((prev) => (prev + 1) % slides.length);
     }, 5000);
     return () => window.clearInterval(id);
   }, [slides.length]);
 
   const current = slides[index];
-  const src = publicImageSrc(current.jpg || current.src);
+  const src = heroImageSrc(current);
   const slideScale = current.scale ?? 1;
-  const firstSrc = publicImageSrc(slides[0].jpg || slides[0].src);
 
   return (
     <section className="relative h-[100svh] min-h-[520px] max-h-[900px] w-full overflow-hidden bg-[#0c0c0c] sm:min-h-[600px]">
-      {/* Static LCP image — always painted first for faster mobile load */}
-      <div className="absolute inset-0" aria-hidden={index !== 0}>
-        <Image
-          src={firstSrc}
-          alt={slides[0].alt}
-          fill
-          priority
-          fetchPriority="high"
-          quality={80}
-          sizes="100vw"
-          className={`object-cover transition-opacity duration-700 ${
-            index === 0 ? "opacity-100" : "opacity-0"
-          }`}
-          style={{
-            objectPosition: slides[0].objectPosition || "center 30%",
-            transform: slides[0].scale ? `scale(${slides[0].scale})` : undefined,
-          }}
-        />
-      </div>
-
       <AnimatePresence mode="wait">
-        {index > 0 && (
-          <motion.div
-            key={current.id}
-            className="absolute inset-0"
-            initial={{ opacity: 0, scale: slideScale * 1.03 }}
-            animate={{ opacity: 1, scale: slideScale }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <Image
-              src={src}
-              alt={current.alt}
-              fill
-              quality={80}
-              sizes="100vw"
-              className="object-cover"
-              style={{ objectPosition: current.objectPosition || "center 30%" }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/25 sm:from-black/55 sm:via-black/10 sm:to-black/20" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-transparent to-transparent sm:from-black/35" />
-          </motion.div>
-        )}
+        <motion.div
+          key={current.id}
+          className="absolute inset-0"
+          initial={
+            firstPaint.current
+              ? false
+              : { opacity: 0, scale: slideScale * 1.03 }
+          }
+          animate={{ opacity: 1, scale: slideScale }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <Image
+            src={src}
+            alt={current.alt}
+            fill
+            priority={index === 0}
+            sizes="100vw"
+            unoptimized
+            className="object-cover"
+            style={{ objectPosition: current.objectPosition || "center 30%" }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/25 sm:from-black/55 sm:via-black/10 sm:to-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-transparent to-transparent sm:from-black/35" />
+        </motion.div>
       </AnimatePresence>
-
-      {index === 0 && (
-        <>
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/25 sm:from-black/55 sm:via-black/10 sm:to-black/20" />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/45 via-transparent to-transparent sm:from-black/35" />
-        </>
-      )}
 
       <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-10 pt-24 sm:px-5 sm:pb-16 sm:pt-28 md:px-8 md:pb-20">
         <motion.p
@@ -153,7 +130,10 @@ export function HeroCarousel({ images }: Props) {
               key={slide.id}
               type="button"
               aria-label={`Show slide ${i + 1}`}
-              onClick={() => setIndex(i)}
+              onClick={() => {
+                firstPaint.current = false;
+                setIndex(i);
+              }}
               className={`h-1 cursor-pointer rounded-full transition-all duration-500 ${
                 i === index ? "w-10 bg-white" : "w-4 bg-white/40"
               }`}
