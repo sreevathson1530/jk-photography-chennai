@@ -14,7 +14,7 @@ export default function AboutPage() {
   const imgB = "/media/sections/services.webp";
 
   return (
-    <div className="bg-white pt-28 pb-24 md:pt-32">
+    <div className="bg-white pt-[7.5rem] pb-24 md:pt-32">
       <section className="mx-auto max-w-7xl px-5 md:px-8">
         <Reveal className="max-w-3xl">
           <p className="text-[11px] tracking-[0.3em] text-zinc-500 uppercase">

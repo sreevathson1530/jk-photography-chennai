@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="bg-white pt-28 pb-24 md:pt-32 md:pb-28">
+    <div className="bg-white pt-[7.5rem] pb-24 md:pt-32 md:pb-28">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <Reveal className="mb-12 max-w-3xl">
           <p className="text-[11px] tracking-[0.3em] text-zinc-500 uppercase">
