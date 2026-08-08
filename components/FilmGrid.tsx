@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Play, X } from "lucide-react";
+import { Loader2, Play, X } from "lucide-react";
 import { publicImageSrc } from "@/lib/image-src";
 import { resolveVideoSrc } from "@/lib/video-src";
 import type { FilmItem } from "@/lib/media";
@@ -16,8 +16,22 @@ type Props = {
 export function FilmGrid({ films }: Props) {
   const [active, setActive] = useState<FilmItem | null>(null);
   const [videoError, setVideoError] = useState(false);
+  const [videoLoading, setVideoLoading] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const activeVideoSrc = active ? resolveVideoSrc(active.videoSrc) : undefined;
+
+  useEffect(() => {
+    if (!active || !activeVideoSrc) return;
+    setVideoError(false);
+    setVideoLoading(true);
+  }, [active, activeVideoSrc]);
+
+  const closePlayer = () => {
+    setVideoError(false);
+    setVideoLoading(false);
+    setActive(null);
+  };
 
   return (
     <>
@@ -26,10 +40,7 @@ export function FilmGrid({ films }: Props) {
           <button
             key={film.id}
             type="button"
-            onClick={() => {
-              setVideoError(false);
-              setActive(film);
-            }}
+            onClick={() => setActive(film)}
             className="group relative block w-full cursor-pointer overflow-hidden bg-zinc-100 text-left"
           >
             <div className="relative aspect-[4/5]">
@@ -89,44 +100,92 @@ export function FilmGrid({ films }: Props) {
             role="dialog"
             aria-modal="true"
             aria-label="Film player"
-            onClick={() => {
-              setVideoError(false);
-              setActive(null);
-            }}
+            onClick={closePlayer}
           >
             <button
               type="button"
-              className="absolute top-5 right-5 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-white text-zinc-900"
+              className="absolute top-5 right-5 z-10 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-white text-zinc-900"
               aria-label="Close film"
-              onClick={() => setActive(null)}
+              onClick={closePlayer}
             >
               <X className="h-5 w-5" />
             </button>
             <motion.div
-              className="w-full max-w-4xl overflow-hidden rounded-2xl bg-black shadow-2xl"
+              className="relative w-full max-w-4xl overflow-hidden rounded-2xl bg-black shadow-2xl"
               initial={{ scale: 0.96, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.98, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
-              {activeVideoSrc && !videoError ? (
-                <video
-                  key={activeVideoSrc}
-                  src={activeVideoSrc}
-                  poster={publicImageSrc(active.poster)}
-                  controls
-                  autoPlay
-                  playsInline
-                  preload="metadata"
-                  className="aspect-video w-full bg-black"
-                  onError={() => setVideoError(true)}
-                />
+              {activeVideoSrc ? (
+                <>
+                  <video
+                    ref={videoRef}
+                    key={activeVideoSrc}
+                    src={activeVideoSrc}
+                    poster={publicImageSrc(active.poster)}
+                    controls
+                    autoPlay
+                    playsInline
+                    preload="auto"
+                    className="aspect-video w-full bg-black"
+                    onLoadStart={() => setVideoLoading(true)}
+                    onLoadedData={() => setVideoLoading(false)}
+                    onCanPlay={() => setVideoLoading(false)}
+                    onError={() => {
+                      setVideoLoading(false);
+                      setVideoError(true);
+                    }}
+                  />
+                  {videoLoading && !videoError && (
+                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/50">
+                      <Loader2 className="h-10 w-10 animate-spin text-white" />
+                    </div>
+                  )}
+                  {videoError && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-zinc-900 p-6 text-center text-white">
+                      <p className="font-display text-xl sm:text-2xl">
+                        {active.title}
+                      </p>
+                      <p className="max-w-md text-sm text-zinc-300">
+                        This clip could not load. Try again or watch on
+                        Instagram.
+                      </p>
+                      <div className="flex flex-wrap justify-center gap-3">
+                        <button
+                          type="button"
+                          className="rounded-full bg-white px-6 py-3 text-[12px] tracking-[0.16em] text-zinc-950 uppercase"
+                          onClick={() => {
+                            setVideoError(false);
+                            setVideoLoading(true);
+                            const el = videoRef.current;
+                            if (el) {
+                              el.load();
+                              void el.play().catch(() => setVideoError(true));
+                            }
+                          }}
+                        >
+                          Retry
+                        </button>
+                        <a
+                          href={active.externalUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-full border border-white/30 px-6 py-3 text-[12px] tracking-[0.16em] text-white uppercase"
+                        >
+                          Instagram
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="flex aspect-video flex-col items-center justify-center gap-4 bg-zinc-900 p-8 text-center text-white">
-                  <p className="font-display text-2xl sm:text-3xl">{active.title}</p>
+                  <p className="font-display text-2xl sm:text-3xl">
+                    {active.title}
+                  </p>
                   <p className="max-w-md text-sm text-zinc-300">
-                    Full-length masters are available on request. Watch more
-                    highlights on Instagram.
+                    Video is not available for this highlight yet.
                   </p>
                   <a
                     href={active.externalUrl}
@@ -134,7 +193,7 @@ export function FilmGrid({ films }: Props) {
                     rel="noopener noreferrer"
                     className="rounded-full bg-white px-6 py-3 text-[12px] tracking-[0.16em] text-zinc-950 uppercase"
                   >
-                    Open Instagram
+                    Watch on Instagram
                   </a>
                 </div>
               )}

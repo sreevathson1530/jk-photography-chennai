@@ -1,8 +1,6 @@
-const DEFAULT_VIDEO_CDN =
-  "https://media.githubusercontent.com/media/sreevathson1530/jk-photography-chennai/main";
-
 /**
- * Vercel deploys Git LFS pointer stubs for large MP4s — resolve to the real file on GitHub LFS CDN.
+ * Serve films through our API proxy so browsers get same-origin MP4 with correct headers.
+ * Vercel static files are Git LFS pointers; GitHub CDN alone often fails in <video> tags.
  */
 export function resolveVideoSrc(src?: string | null): string | undefined {
   if (!src) return undefined;
@@ -12,9 +10,6 @@ export function resolveVideoSrc(src?: string | null): string | undefined {
     return path;
   }
 
-  const base = (
-    process.env.NEXT_PUBLIC_VIDEO_CDN_BASE ?? DEFAULT_VIDEO_CDN
-  ).replace(/\/$/, "");
-
-  return `${base}${path}`;
+  const filename = path.slice("/media/films/clips/".length);
+  return `/api/video/${filename}`;
 }
