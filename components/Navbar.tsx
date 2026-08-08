@@ -112,17 +112,17 @@ export function Navbar() {
 
       <div
         id="mobile-menu"
-        className={`fixed inset-0 z-0 bg-white transition-transform duration-500 lg:hidden ${
-          open ? "translate-y-0 pointer-events-auto" : "-translate-y-full"
+        className={`fixed inset-0 z-[100] bg-white transition-transform duration-500 lg:hidden ${
+          open ? "translate-y-0 pointer-events-auto" : "-translate-y-full pointer-events-none"
         }`}
       >
-        <div className="flex h-full flex-col justify-center gap-6 px-8 pt-20">
+        <div className="flex h-full flex-col justify-center gap-5 px-8 pt-24 pb-10">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setOpen(false)}
-              className="font-display text-4xl text-zinc-900 transition hover:text-zinc-500"
+              className="font-display text-3xl text-zinc-900 transition hover:text-zinc-500 sm:text-4xl"
             >
               {link.label}
             </Link>

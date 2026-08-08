@@ -54,7 +54,7 @@ export default function RootLayout({
       lang="en"
       className={`${bodoni.variable} ${jost.variable} ${logoScript.variable} h-full`}
     >
-      <body className="min-h-full bg-white font-sans text-zinc-900 antialiased">
+      <body className="min-h-full overflow-x-hidden bg-white pb-20 font-sans text-zinc-900 antialiased md:pb-0">
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />

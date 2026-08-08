@@ -35,21 +35,21 @@ export function FilmGrid({ films }: Props) {
                 className="object-cover transition duration-700 group-hover:scale-[1.04]"
                 style={{ objectPosition: "center 25%" }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/55 via-zinc-950/10 to-transparent" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-white/50 bg-white/20 text-white backdrop-blur transition group-hover:scale-110">
-                  <Play className="h-5 w-5 fill-current" />
+              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-zinc-950/20 to-transparent sm:from-zinc-950/55 sm:via-zinc-950/10" />
+              <div className="absolute right-3 bottom-[4.5rem] flex items-center justify-center sm:inset-0 sm:right-auto sm:bottom-auto sm:items-center sm:justify-center">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/50 bg-white/25 text-white backdrop-blur transition sm:h-14 sm:w-14 sm:bg-white/20 sm:group-hover:scale-110">
+                  <Play className="h-4 w-4 fill-current sm:h-5 sm:w-5" />
                 </span>
               </div>
-              <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-                <p className="text-[11px] tracking-[0.22em] uppercase opacity-80">
+              <div className="absolute inset-x-0 bottom-0 p-4 text-white sm:p-5">
+                <p className="text-[10px] tracking-[0.2em] uppercase opacity-80 sm:text-[11px] sm:tracking-[0.22em]">
                   {film.category === "prewed" ? "Pre-Wedding" : "Wedding Film"}
                 </p>
-                <h3 className="mt-1 font-display text-2xl leading-tight">
+                <h3 className="mt-0.5 font-display text-xl leading-tight sm:mt-1 sm:text-2xl">
                   {film.title}
                 </h3>
                 {film.subtitle ? (
-                  <p className="mt-1 line-clamp-1 text-xs text-white/70">
+                  <p className="mt-0.5 line-clamp-1 text-[11px] text-white/70 sm:mt-1 sm:text-xs">
                     {film.subtitle}
                   </p>
                 ) : null}
@@ -110,7 +110,7 @@ export function FilmGrid({ films }: Props) {
                 />
               ) : (
                 <div className="flex aspect-video flex-col items-center justify-center gap-4 bg-zinc-900 p-8 text-center text-white">
-                  <p className="font-display text-3xl">{active.title}</p>
+                  <p className="font-display text-2xl sm:text-3xl">{active.title}</p>
                   <p className="max-w-md text-sm text-zinc-300">
                     Full-length masters are available on request. Watch more
                     highlights on Instagram.

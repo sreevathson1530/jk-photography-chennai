@@ -20,7 +20,7 @@ export default function AboutPage() {
           <p className="text-[11px] tracking-[0.3em] text-zinc-500 uppercase">
             About JK Photography
           </p>
-          <h1 className="mt-4 font-display text-5xl leading-tight text-zinc-950 md:text-6xl">
+          <h1 className="mt-4 font-display text-4xl leading-tight text-zinc-950 sm:text-5xl md:text-6xl">
             {aboutCopy.headline}
           </h1>
         </Reveal>

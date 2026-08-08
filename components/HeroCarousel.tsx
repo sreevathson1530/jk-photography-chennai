@@ -39,7 +39,7 @@ export function HeroCarousel({ images }: Props) {
   const src = current.jpg || current.src;
 
   return (
-    <section className="relative h-[100svh] min-h-[640px] w-full overflow-hidden bg-[#0c0c0c]">
+    <section className="relative h-[100svh] min-h-[520px] max-h-[900px] w-full overflow-hidden bg-[#0c0c0c] sm:min-h-[600px]">
       <AnimatePresence mode="wait">
         <motion.div
           key={current.id}
@@ -60,18 +60,18 @@ export function HeroCarousel({ images }: Props) {
             className="object-cover"
             style={{ objectPosition: current.objectPosition || "center 30%" }}
           />
-          {/* Light overlays only — keep photo vivid */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-black/20" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/35 via-transparent to-transparent" />
+          {/* Stronger bottom gradient on mobile so hero text stays readable */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/25 sm:from-black/55 sm:via-black/10 sm:to-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-transparent to-transparent sm:from-black/35" />
         </motion.div>
       </AnimatePresence>
 
-      <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-5 pb-16 pt-28 md:px-8 md:pb-20">
+      <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-10 pt-24 sm:px-5 sm:pb-16 sm:pt-28 md:px-8 md:pb-20">
         <motion.p
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.7 }}
-          className="mb-4 text-[11px] tracking-[0.35em] text-white/75 uppercase"
+          className="mb-3 text-[10px] tracking-[0.28em] text-white/75 uppercase sm:mb-4 sm:text-[11px] sm:tracking-[0.35em]"
         >
           Since {brand.since} · {brand.years} Years · {brand.weddings} Weddings
         </motion.p>
@@ -82,10 +82,10 @@ export function HeroCarousel({ images }: Props) {
           transition={{ delay: 0.35, duration: 0.8 }}
           className="max-w-4xl"
         >
-          <span className="block font-logo text-6xl leading-[1.05] text-white sm:text-7xl md:text-8xl lg:text-9xl">
+          <span className="block font-logo text-5xl leading-[1.05] text-white sm:text-6xl md:text-8xl lg:text-9xl">
             JK
           </span>
-          <span className="mt-1 block text-[13px] font-light tracking-[0.42em] text-white/85 uppercase sm:text-sm md:mt-2 md:text-base md:tracking-[0.48em]">
+          <span className="mt-1 block text-[11px] font-light tracking-[0.32em] text-white/85 uppercase sm:text-[13px] sm:tracking-[0.42em] md:mt-2 md:text-base md:tracking-[0.48em]">
             Photography
           </span>
         </motion.h1>
@@ -94,7 +94,7 @@ export function HeroCarousel({ images }: Props) {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.7 }}
-          className="mt-5 max-w-xl text-base text-white/85 md:text-lg"
+          className="mt-4 max-w-xl text-sm leading-relaxed text-white/85 sm:mt-5 sm:text-base md:text-lg"
         >
           {brand.tagline}. Based in Chennai & Kerala — travelling worldwide.
         </motion.p>
@@ -103,17 +103,17 @@ export function HeroCarousel({ images }: Props) {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.65, duration: 0.7 }}
-          className="mt-8 flex flex-wrap gap-3"
+          className="mt-6 flex flex-wrap gap-2.5 sm:mt-8 sm:gap-3"
         >
           <Link
             href="/portfolio"
-            className="rounded-full bg-white px-7 py-3.5 text-[12px] font-medium tracking-[0.18em] text-zinc-950 uppercase transition hover:bg-zinc-100"
+            className="rounded-full bg-white px-5 py-3 text-[11px] font-medium tracking-[0.16em] text-zinc-950 uppercase transition hover:bg-zinc-100 sm:px-7 sm:py-3.5 sm:text-[12px] sm:tracking-[0.18em]"
           >
             View Portfolio
           </Link>
           <Link
             href="/contact"
-            className="rounded-full border border-white/40 bg-white/10 px-7 py-3.5 text-[12px] font-medium tracking-[0.18em] text-white uppercase backdrop-blur transition hover:border-white/70"
+            className="rounded-full border border-white/40 bg-white/10 px-5 py-3 text-[11px] font-medium tracking-[0.16em] text-white uppercase backdrop-blur transition hover:border-white/70 sm:px-7 sm:py-3.5 sm:text-[12px] sm:tracking-[0.18em]"
           >
             Inquire
           </Link>

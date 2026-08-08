@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { MasonryGallery } from "@/components/MasonryGallery";
@@ -20,7 +21,7 @@ export default function HomePage() {
     <>
       <HeroCarousel images={heroes} />
 
-      <section className="relative overflow-hidden bg-white px-5 py-24 md:px-8 md:py-32">
+      <section className="relative overflow-hidden bg-white px-5 py-16 sm:py-24 md:px-8 md:py-32">
         <div
           className="pointer-events-none absolute inset-0 opacity-70"
           style={{
@@ -33,7 +34,7 @@ export default function HomePage() {
             <p className="text-[11px] tracking-[0.3em] text-zinc-500 uppercase">
               Why JK Photography
             </p>
-            <h2 className="mt-4 font-display text-4xl leading-tight text-zinc-950 md:text-5xl">
+            <h2 className="mt-4 font-display text-3xl leading-tight text-zinc-950 sm:text-4xl md:text-5xl">
               Lasting memories through breathtaking, soulful imagery
             </h2>
           </Reveal>
@@ -60,8 +61,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-[#F7F5F2] px-5 py-24 md:px-8 md:py-28">
-        <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-2 lg:gap-16">
+      <section className="bg-[#F7F5F2] px-5 py-16 sm:py-24 md:px-8 md:py-28">
+        <div className="mx-auto grid max-w-7xl items-start gap-8 sm:gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
           <Reveal>
             <ParallaxImage
               src={storiesImage}
@@ -73,10 +74,10 @@ export default function HomePage() {
             <p className="text-[11px] tracking-[0.3em] text-zinc-500 uppercase">
               Our Craft
             </p>
-            <h2 className="mt-4 font-display text-4xl text-zinc-950 md:text-5xl">
+            <h2 className="mt-4 font-display text-3xl text-zinc-950 sm:text-4xl md:text-5xl">
               Stories from JK
             </h2>
-            <p className="mt-5 text-lg leading-relaxed text-zinc-600">
+            <p className="mt-4 text-base leading-relaxed text-zinc-600 sm:mt-5 sm:text-lg">
               Premium wedding photography & filmmaking shaped by {brand.years}{" "}
               years and {brand.weddings} celebrations. Every frame is composed
               to feel immersive, intimate, and endlessly rewatchable.
@@ -106,14 +107,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-white px-5 py-24 md:px-8 md:py-28">
+      <section className="bg-white px-5 py-16 sm:py-24 md:px-8 md:py-28">
         <div className="mx-auto max-w-7xl">
           <Reveal className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-[11px] tracking-[0.3em] text-zinc-500 uppercase">
                 Selected Works
               </p>
-              <h2 className="mt-3 font-display text-4xl text-zinc-950 md:text-5xl">
+              <h2 className="mt-3 font-display text-3xl text-zinc-950 sm:text-4xl md:text-5xl">
                 Portfolio highlights
               </h2>
             </div>
@@ -128,13 +129,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="overflow-hidden bg-[#FAFAF8] px-5 py-24 md:px-8 md:py-28">
+      <section className="overflow-hidden bg-[#FAFAF8] px-5 py-16 sm:py-24 md:px-8 md:py-28">
         <div className="mx-auto max-w-7xl">
-          <Reveal className="mb-12 max-w-2xl">
+          <Reveal className="mb-10 max-w-2xl sm:mb-12">
             <p className="text-[11px] tracking-[0.3em] text-zinc-500 uppercase">
               Wedding Films
             </p>
-            <h2 className="mt-3 font-display text-4xl text-zinc-950 md:text-5xl">
+            <h2 className="mt-3 font-display text-3xl text-zinc-950 sm:text-4xl md:text-5xl">
               Cinematic highlights
             </h2>
           </Reveal>
@@ -150,13 +151,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="relative bg-white px-5 py-24 md:px-8 md:py-28">
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-12">
+      <section className="relative bg-white px-5 py-16 sm:py-24 md:px-8 md:py-28">
+        <div className="mx-auto grid max-w-7xl gap-8 sm:gap-10 lg:grid-cols-12">
           <Reveal className="lg:col-span-4">
             <p className="text-[11px] tracking-[0.3em] text-zinc-500 uppercase">
               Testimonials
             </p>
-            <h2 className="mt-3 font-display text-4xl text-zinc-950 md:text-5xl">
+            <h2 className="mt-3 font-display text-3xl text-zinc-950 sm:text-4xl md:text-5xl">
               From our beloved clients
             </h2>
             <div className="mt-8 hidden aspect-[3/4] overflow-hidden lg:block">
@@ -170,8 +171,8 @@ export default function HomePage() {
           <div className="grid gap-6 sm:grid-cols-2 lg:col-span-8">
             {testimonials.map((item, i) => (
               <Reveal key={item.name} delay={i * 0.05}>
-                <blockquote className="h-full border border-zinc-200 bg-[#FCFBF9] p-7 md:p-8">
-                  <p className="font-display text-2xl leading-snug text-zinc-900">
+                <blockquote className="h-full border border-zinc-200 bg-[#FCFBF9] p-6 sm:p-7 md:p-8">
+                  <p className="font-display text-xl leading-snug text-zinc-900 sm:text-2xl">
                     “{item.quote}”
                   </p>
                   <footer className="mt-6 text-sm text-zinc-500">
@@ -187,16 +188,58 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden px-5 py-28 md:px-8 md:py-36">
-        <div className="absolute inset-0">
+      {/* Mobile: image above text on solid background. Desktop: parallax backdrop */}
+      <section className="bg-[#FAFAF8] px-5 py-16 sm:py-24 md:relative md:overflow-hidden md:px-8 md:py-36">
+        <div className="mx-auto max-w-4xl md:hidden">
+          <div className="relative mb-8 aspect-[16/10] overflow-hidden rounded-2xl">
+            <Image
+              src={gallery[12]?.src || featureImageB}
+              alt="Let's connect"
+              fill
+              sizes="100vw"
+              quality={90}
+              className="object-cover"
+            />
+          </div>
+          <div className="text-center">
+            <p className="text-[11px] tracking-[0.3em] text-zinc-600 uppercase">
+              Let&apos;s Connect
+            </p>
+            <h2 className="mt-4 font-display text-3xl leading-tight text-zinc-950 sm:text-4xl">
+              Let&apos;s craft memories that last a lifetime
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-zinc-600 sm:mt-5 sm:text-base">
+              Share your date, venue, and vision — we&apos;ll curate the right
+              photo & film crew for your celebration.
+            </p>
+            <div className="mt-7 flex flex-wrap justify-center gap-3 sm:mt-8">
+              <Link
+                href="/contact"
+                className="rounded-full bg-zinc-950 px-6 py-3 text-[12px] tracking-[0.18em] text-white uppercase transition hover:bg-zinc-800"
+              >
+                Contact Us
+              </Link>
+              <a
+                href={`https://wa.me/${brand.whatsapp}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full border border-zinc-300 bg-white px-6 py-3 text-[12px] tracking-[0.18em] text-zinc-900 uppercase transition hover:border-zinc-500"
+              >
+                WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div className="absolute inset-0 hidden md:block">
           <ParallaxImage
             src={gallery[12]?.src || featureImageB}
             alt="Let's connect"
             className="h-full w-full"
           />
-          <div className="absolute inset-0 bg-white/78" />
+          <div className="absolute inset-0 bg-white/82" />
         </div>
-        <div className="relative mx-auto max-w-4xl text-center">
+        <div className="relative mx-auto hidden max-w-4xl text-center md:block">
           <Reveal>
             <p className="text-[11px] tracking-[0.3em] text-zinc-600 uppercase">
               Let&apos;s Connect

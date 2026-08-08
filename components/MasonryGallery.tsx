@@ -64,7 +64,7 @@ export function MasonryGallery({
   return (
     <div>
       {showFilters && (
-        <div className="mb-10 flex flex-wrap gap-2">
+        <div className="mb-10 flex flex-wrap gap-2 sm:mb-10">
           {portfolioFilters.map((tab) => {
             const selected = filter === tab.id;
             const className = `cursor-pointer rounded-full px-5 py-2.5 text-[11px] tracking-[0.2em] uppercase transition duration-300 ${

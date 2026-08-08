@@ -27,7 +27,8 @@ export function Reveal({
       if (!ref.current) return;
 
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (reduce) return;
+      const mobile = window.matchMedia("(max-width: 767px)").matches;
+      if (reduce || mobile) return;
 
       gsap.fromTo(
         ref.current,
@@ -50,7 +51,7 @@ export function Reveal({
   );
 
   return (
-    <div ref={ref} className={`opacity-100 ${className}`}>
+    <div ref={ref} className={className}>
       {children}
     </div>
   );

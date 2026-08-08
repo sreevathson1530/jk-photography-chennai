@@ -21,13 +21,14 @@ export function ParallaxImage({ src, alt, className = "" }: Props) {
   useGSAP(
     () => {
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (reduce || !wrap.current || !img.current) return;
+      const mobile = window.matchMedia("(max-width: 767px)").matches;
+      if (reduce || mobile || !wrap.current || !img.current) return;
 
       gsap.fromTo(
         img.current,
-        { yPercent: -12, scale: 1.12 },
+        { yPercent: -8, scale: 1.06 },
         {
-          yPercent: 12,
+          yPercent: 8,
           scale: 1.02,
           ease: "none",
           scrollTrigger: {
@@ -43,8 +44,8 @@ export function ParallaxImage({ src, alt, className = "" }: Props) {
   );
 
   return (
-    <div ref={wrap} className={`overflow-hidden ${className}`}>
-      <div ref={img} className="relative h-full w-full will-change-transform">
+    <div ref={wrap} className={`relative overflow-hidden ${className}`}>
+      <div ref={img} className="relative h-full min-h-full w-full">
         <Image
           src={src}
           alt={alt}
