@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
     qualities: [75, 90, 95],
   },
   experimental: {
-    optimizePackageImports: ["lucide-react", "framer-motion"],
+    optimizePackageImports: ["lucide-react", "framer-motion", "gsap"],
   },
   eslint: {
     ignoreDuringBuilds: true,

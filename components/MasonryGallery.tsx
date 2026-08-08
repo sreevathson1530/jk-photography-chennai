@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { portfolioFilters } from "@/lib/data";
 import type { GalleryItem } from "@/lib/media";
+import { publicImageSrc } from "@/lib/image-src";
 
 type Props = {
   items: GalleryItem[];
@@ -118,12 +119,11 @@ export function MasonryGallery({
           >
             <div className="relative h-full w-full">
               <Image
-                src={item.src}
+                src={publicImageSrc(item.src)}
                 alt={item.title}
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                quality={90}
-                unoptimized={String(item.src).includes("?v=")}
+                quality={75}
                 className="object-cover transition duration-700 ease-out group-hover:scale-[1.02]"
                 style={{ objectPosition: item.objectPosition || "center center" }}
                 loading="lazy"

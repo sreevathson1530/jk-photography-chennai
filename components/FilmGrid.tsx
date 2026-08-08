@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Play, X } from "lucide-react";
+import { publicImageSrc } from "@/lib/image-src";
 import type { FilmItem } from "@/lib/media";
 
 type Props = {
@@ -26,12 +27,11 @@ export function FilmGrid({ films }: Props) {
           >
             <div className="relative aspect-[4/5]">
               <Image
-                src={film.poster}
+                src={publicImageSrc(film.poster)}
                 alt={film.subtitle || film.title}
                 fill
                 sizes="(max-width: 768px) 100vw, 33vw"
-                quality={90}
-                unoptimized
+                quality={75}
                 className="object-cover transition duration-700 group-hover:scale-[1.04]"
                 style={{ objectPosition: "center 25%" }}
               />

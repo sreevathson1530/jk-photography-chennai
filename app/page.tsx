@@ -1,12 +1,22 @@
 import Image from "next/image";
 import Link from "next/link";
+import nextDynamic from "next/dynamic";
 import { HeroCarousel } from "@/components/HeroCarousel";
-import { MasonryGallery } from "@/components/MasonryGallery";
 import { Reveal } from "@/components/Reveal";
 import { ParallaxImage } from "@/components/ParallaxImage";
-import { FilmGrid } from "@/components/FilmGrid";
 import { brand, services, testimonials, whyUs } from "@/lib/data";
 import { getFilms, getGallery, getHeroes } from "@/lib/media";
+
+const MasonryGallery = nextDynamic(
+  () =>
+    import("@/components/MasonryGallery").then((mod) => mod.MasonryGallery),
+  { loading: () => <div className="min-h-[480px]" aria-hidden /> }
+);
+
+const FilmGrid = nextDynamic(
+  () => import("@/components/FilmGrid").then((mod) => mod.FilmGrid),
+  { loading: () => <div className="min-h-[320px]" aria-hidden /> }
+);
 
 export const dynamic = "force-dynamic";
 

@@ -24,6 +24,7 @@ const logoScript = Great_Vibes({
   subsets: ["latin"],
   weight: "400",
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {

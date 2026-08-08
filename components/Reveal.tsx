@@ -1,11 +1,6 @@
 "use client";
 
-import { useRef } from "react";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(useGSAP, ScrollTrigger);
+import { useEffect, useRef } from "react";
 
 type Props = {
   children: React.ReactNode;
@@ -22,16 +17,25 @@ export function Reveal({
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
-  useGSAP(
-    () => {
-      if (!ref.current) return;
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
 
-      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const mobile = window.matchMedia("(max-width: 767px)").matches;
-      if (reduce || mobile) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const mobile = window.matchMedia("(max-width: 767px)").matches;
+    if (reduce || mobile) return;
 
-      gsap.fromTo(
-        ref.current,
+    let revert: (() => void) | undefined;
+
+    void (async () => {
+      const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
+        import("gsap"),
+        import("gsap/ScrollTrigger"),
+      ]);
+      gsap.registerPlugin(ScrollTrigger);
+
+      const tween = gsap.fromTo(
+        el,
         { autoAlpha: 0, y },
         {
           autoAlpha: 1,
@@ -40,15 +44,21 @@ export function Reveal({
           delay,
           ease: "power3.out",
           scrollTrigger: {
-            trigger: ref.current,
+            trigger: el,
             start: "top 88%",
             toggleActions: "play none none none",
           },
         }
       );
-    },
-    { scope: ref, dependencies: [y, delay] }
-  );
+
+      revert = () => {
+        tween.scrollTrigger?.kill();
+        tween.kill();
+      };
+    })();
+
+    return () => revert?.();
+  }, [y, delay]);
 
   return (
     <div ref={ref} className={className}>
