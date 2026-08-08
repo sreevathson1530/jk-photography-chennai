@@ -60,7 +60,7 @@ export function Navbar() {
           aria-label="JK Photography home"
         >
           <Image
-            src="/logo.png?v=logo-jk"
+            src="/logo.png?v=logo-transparent"
             alt="JK Photography Chennai"
             width={220}
             height={48}

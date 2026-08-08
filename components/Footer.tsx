@@ -16,11 +16,11 @@ export function Footer() {
       <div className="relative mx-auto grid max-w-7xl gap-12 px-5 py-20 md:grid-cols-12 md:px-8">
         <div className="md:col-span-5">
           <Image
-            src="/logo.png?v=nav-clear"
+            src="/logo.png?v=logo-transparent"
             alt="JK Photography"
             width={200}
             height={80}
-            className="mb-6 h-12 w-auto brightness-0"
+            className="mb-6 h-12 w-auto max-h-14 object-contain object-left"
             unoptimized
           />
           <p className="max-w-md font-display text-3xl leading-tight text-zinc-900 md:text-4xl">
