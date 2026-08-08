@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import manifestStatic from "./media-manifest.json";
+import { resolveVideoSrc } from "./video-src";
 
 export type GalleryCategory = "wedding" | "prewed" | "bride" | "bts";
 
@@ -63,7 +64,10 @@ export function getGallery() {
 }
 
 export function getFilms() {
-  return (loadManifest().films ?? []) as FilmItem[];
+  return (loadManifest().films ?? []).map((film) => ({
+    ...film,
+    videoSrc: resolveVideoSrc(film.videoSrc),
+  })) as FilmItem[];
 }
 
 /** @deprecated Use getHeroes() in server components */

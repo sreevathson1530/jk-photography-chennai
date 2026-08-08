@@ -6,6 +6,7 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Play, X } from "lucide-react";
 import { publicImageSrc } from "@/lib/image-src";
+import { resolveVideoSrc } from "@/lib/video-src";
 import type { FilmItem } from "@/lib/media";
 
 type Props = {
@@ -14,6 +15,9 @@ type Props = {
 
 export function FilmGrid({ films }: Props) {
   const [active, setActive] = useState<FilmItem | null>(null);
+  const [videoError, setVideoError] = useState(false);
+
+  const activeVideoSrc = active ? resolveVideoSrc(active.videoSrc) : undefined;
 
   return (
     <>
@@ -22,7 +26,10 @@ export function FilmGrid({ films }: Props) {
           <button
             key={film.id}
             type="button"
-            onClick={() => setActive(film)}
+            onClick={() => {
+              setVideoError(false);
+              setActive(film);
+            }}
             className="group relative block w-full cursor-pointer overflow-hidden bg-zinc-100 text-left"
           >
             <div className="relative aspect-[4/5]">
@@ -82,7 +89,10 @@ export function FilmGrid({ films }: Props) {
             role="dialog"
             aria-modal="true"
             aria-label="Film player"
-            onClick={() => setActive(null)}
+            onClick={() => {
+              setVideoError(false);
+              setActive(null);
+            }}
           >
             <button
               type="button"
@@ -99,15 +109,17 @@ export function FilmGrid({ films }: Props) {
               exit={{ scale: 0.98, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
-              {active.videoSrc ? (
+              {activeVideoSrc && !videoError ? (
                 <video
-                  key={active.videoSrc}
-                  src={active.videoSrc}
-                  poster={active.poster}
+                  key={activeVideoSrc}
+                  src={activeVideoSrc}
+                  poster={publicImageSrc(active.poster)}
                   controls
                   autoPlay
                   playsInline
-                  className="aspect-video w-full"
+                  preload="metadata"
+                  className="aspect-video w-full bg-black"
+                  onError={() => setVideoError(true)}
                 />
               ) : (
                 <div className="flex aspect-video flex-col items-center justify-center gap-4 bg-zinc-900 p-8 text-center text-white">
