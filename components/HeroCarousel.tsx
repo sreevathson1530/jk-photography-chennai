@@ -87,10 +87,18 @@ export function HeroCarousel({ images }: Props) {
           transition={{ delay: 0.35, duration: 0.8 }}
           className="max-w-4xl"
         >
-          <span className="block font-logo text-5xl leading-[1.05] text-white sm:text-6xl md:text-8xl lg:text-9xl">
-            JK
+          <span className="relative block h-16 w-[min(78vw,420px)] sm:h-20 sm:w-[min(70vw,480px)] md:h-28 md:w-[560px] lg:h-32 lg:w-[640px]">
+            <Image
+              src="/jk-monogram.png"
+              alt="JK"
+              fill
+              priority
+              unoptimized
+              sizes="(max-width: 768px) 78vw, 640px"
+              className="object-contain object-left drop-shadow-[0_2px_18px_rgba(0,0,0,0.35)]"
+            />
           </span>
-          <span className="mt-1 block text-[11px] font-light tracking-[0.32em] text-white/85 uppercase sm:text-[13px] sm:tracking-[0.42em] md:mt-2 md:text-base md:tracking-[0.48em]">
+          <span className="mt-2 block text-[11px] font-light tracking-[0.32em] text-white/85 uppercase sm:mt-3 sm:text-[13px] sm:tracking-[0.42em] md:mt-3 md:text-base md:tracking-[0.48em]">
             Photography
           </span>
         </motion.h1>
