@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import manifestStatic from "./media-manifest.json";
-import { youtubeFilms } from "./youtube-films";
+import { readYoutubeFilms } from "./youtube-store";
 
 export type GalleryCategory = "wedding" | "prewed" | "bride" | "bts";
 
@@ -65,7 +65,7 @@ export function getGallery() {
 }
 
 export function getFilms() {
-  return youtubeFilms;
+  return readYoutubeFilms();
 }
 
 /** @deprecated Use getHeroes() in server components */
@@ -73,7 +73,7 @@ export const heroes = (manifestStatic.heroes ?? []) as HeroItem[];
 /** @deprecated Use getGallery() in server components */
 export const gallery = (manifestStatic.gallery ?? []) as GalleryItem[];
 /** @deprecated Use getFilms() in server components */
-export const films = youtubeFilms;
+export const films = readYoutubeFilms();
 
 export function getGalleryByCategory(category: string) {
   const items = getGallery();

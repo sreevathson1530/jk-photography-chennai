@@ -2,11 +2,11 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import {
-  deleteFilmFiles,
   deleteGalleryFiles,
   readManifest,
   writeManifest,
 } from "@/lib/manifest-store";
+import { readYoutubeFilms, writeYoutubeFilms } from "@/lib/youtube-store";
 
 export async function GET() {
   if (!(await isAdminAuthenticated())) {
@@ -15,7 +15,7 @@ export async function GET() {
 
   const manifest = await readManifest();
   const photos = manifest.gallery.filter((g) => g.id.startsWith("img-"));
-  const videos = manifest.films;
+  const videos = readYoutubeFilms();
 
   return NextResponse.json({ photos, videos });
 }
@@ -26,23 +26,22 @@ export async function DELETE(request: Request) {
   }
 
   const { type, id } = await request.json();
-  const manifest = await readManifest();
 
   if (type === "photo") {
     if (!id?.startsWith("img-")) {
       return NextResponse.json({ error: "Invalid photo id" }, { status: 400 });
     }
+    const manifest = await readManifest();
     manifest.gallery = manifest.gallery.filter((g) => g.id !== id);
     await deleteGalleryFiles(id);
     await writeManifest(manifest);
   } else if (type === "video") {
-    const film = manifest.films.find((f) => f.id === id);
+    const films = readYoutubeFilms();
+    const film = films.find((f) => f.id === id);
     if (!film) {
-      return NextResponse.json({ error: "Video not found" }, { status: 404 });
+      return NextResponse.json({ error: "Film not found" }, { status: 404 });
     }
-    manifest.films = manifest.films.filter((f) => f.id !== id);
-    await deleteFilmFiles(id, film.videoSrc);
-    await writeManifest(manifest);
+    await writeYoutubeFilms(films.filter((f) => f.id !== id));
   } else {
     return NextResponse.json({ error: "Invalid type" }, { status: 400 });
   }

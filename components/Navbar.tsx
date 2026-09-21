@@ -112,6 +112,8 @@ export function Navbar() {
       </div>
     ) : null;
 
+  if (pathname.startsWith("/admin")) return null;
+
   return (
     <>
       <header

@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import {
-  processFilmUpload,
   processGalleryUpload,
 } from "@/lib/media-processing";
 import type { GalleryCategory } from "@/lib/media";
@@ -16,7 +15,6 @@ const PHOTO_TYPES = new Set([
   "image/png",
   "image/webp",
 ]);
-const VIDEO_TYPES = new Set(["video/mp4", "video/quicktime", "video/webm"]);
 
 export async function POST(request: Request) {
   if (!(await isAdminAuthenticated())) {
@@ -52,16 +50,10 @@ export async function POST(request: Request) {
     }
 
     if (type === "video") {
-      if (!VIDEO_TYPES.has(file.type) && !/\.(mp4|mov|webm)$/i.test(file.name)) {
-        return NextResponse.json(
-          { error: "Please upload an MP4 or MOV video" },
-          { status: 400 }
-        );
-      }
-      const item = await processFilmUpload(buffer, file.name);
-      revalidatePath("/");
-      revalidatePath("/films");
-      return NextResponse.json({ ok: true, item });
+      return NextResponse.json(
+        { error: "Video file uploads are disabled. Add films with a YouTube link." },
+        { status: 400 }
+      );
     }
 
     return NextResponse.json({ error: "Invalid upload type" }, { status: 400 });

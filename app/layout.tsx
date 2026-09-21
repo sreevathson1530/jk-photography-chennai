@@ -3,6 +3,7 @@ import { Bodoni_Moda, Great_Vibes, Jost } from "next/font/google";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { FloatingCTA } from "@/components/FloatingCTA";
+import { PublicOnly } from "@/components/PublicOnly";
 import { brand } from "@/lib/data";
 import "./globals.css";
 
@@ -58,8 +59,10 @@ export default function RootLayout({
       <body className="min-h-full overflow-x-hidden bg-white font-sans text-zinc-900 antialiased">
         <Navbar />
         <main className="flex-1">{children}</main>
-        <Footer />
-        <FloatingCTA />
+        <PublicOnly>
+          <Footer />
+          <FloatingCTA />
+        </PublicOnly>
       </body>
     </html>
   );
