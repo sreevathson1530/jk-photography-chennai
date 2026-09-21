@@ -16,6 +16,7 @@ export const brand = {
   mapsEmbed:
     "https://www.google.com/maps?q=4/72+Parthasarathy+St,+Avurikollaimedu,+Manali,+Chennai,+Tamil+Nadu+600068&output=embed",
   instagram: "https://www.instagram.com/jkphotographychennai/?hl=en",
+  youtube: "https://www.youtube.com/@jkphotographychennai",
   whatsapp: "919543313354",
 } as const;
 
@@ -70,49 +71,10 @@ export const services = [
   },
 ] as const;
 
-export const packages = [
-  {
-    name: "Essential",
-    price: "On Request",
-    badge: "Intimate",
-    featured: false,
-    features: [
-      "1 Lead Photographer",
-      "Traditional + Candid coverage",
-      "Edited digital gallery",
-      "Highlight teaser reel",
-      "Chennai / nearby venues",
-    ],
-  },
-  {
-    name: "Signature",
-    price: "On Request",
-    badge: "Most Booked",
-    featured: true,
-    features: [
-      "Photo + Film dual crew",
-      "Pre-wedding half-day session",
-      "Cinematic wedding film",
-      "Premium designed album",
-      "Same-day social reels",
-      "Travel within Tamil Nadu & Kerala",
-    ],
-  },
-  {
-    name: "Legacy",
-    price: "On Request",
-    badge: "Destination",
-    featured: false,
-    features: [
-      "Full cinematic production crew",
-      "Multi-day wedding coverage",
-      "Destination pre-wedding film",
-      "Luxury album suite + canvases",
-      "Drone & lighting package",
-      "Worldwide travel available",
-    ],
-  },
-] as const;
+export const packages = {
+  startingFrom: "₹1,00,000",
+  note: "Contact us for pricing tailored to your date, venue, guest count, and photo + film crew.",
+} as const;
 
 export const testimonials = [
   {

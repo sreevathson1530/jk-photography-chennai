@@ -26,17 +26,16 @@ export default function FilmsPage() {
             Cinematic stories in motion
           </h1>
           <p className="mt-5 text-lg leading-relaxed text-zinc-600">
-            Highlight reels and pre-wedding films crafted by our filmmaking
-            crew. Watch more on Instagram{" "}
+            Wedding and pre-wedding films from our YouTube channel{" "}
             <a
-              href={brand.instagram}
+              href={brand.youtube}
               target="_blank"
               rel="noopener noreferrer"
               className="underline underline-offset-4"
             >
               @{brand.handle}
             </a>
-            .
+            . Watch them here on the site.
           </p>
         </Reveal>
 
@@ -58,12 +57,12 @@ export default function FilmsPage() {
               Book a Film Crew
             </Link>
             <a
-              href={brand.instagram}
+              href={brand.youtube}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-full border border-zinc-300 bg-white px-7 py-3.5 text-[12px] tracking-[0.18em] text-zinc-900 uppercase"
             >
-              Instagram Highlights
+              YouTube Channel
             </a>
           </div>
         </Reveal>
