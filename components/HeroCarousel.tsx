@@ -87,14 +87,17 @@ export function HeroCarousel({ images }: Props) {
           transition={{ delay: 0.35, duration: 0.8 }}
           className="max-w-4xl"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/jk-monogram.png?v=brand-jk-4"
-            alt="JK"
-            width={1600}
-            height={746}
-            className="mt-1 block h-24 w-auto sm:h-28 md:h-32 lg:h-36"
-          />
+          {/* Fixed-width wrapper: globals.css forces img height:auto, so width drives the size */}
+          <span className="mt-1 block w-[160px] sm:w-[190px] md:w-[220px] lg:w-[250px]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/jk-monogram.png?v=brand-jk-4"
+              alt="JK"
+              width={1600}
+              height={746}
+              className="block w-full"
+            />
+          </span>
           <span className="mt-2 block text-[11px] font-light tracking-[0.32em] text-white/85 uppercase sm:mt-3 sm:text-[13px] sm:tracking-[0.42em] md:mt-3 md:text-base md:tracking-[0.48em]">
             Photography
           </span>
