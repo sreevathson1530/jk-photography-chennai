@@ -1,0 +1,5 @@
+# Legacy MP4 clips — films are served from YouTube now, never upload these
+public/media/films/clips
+# Local-only artefacts
+.playwright-mcp
+scripts
