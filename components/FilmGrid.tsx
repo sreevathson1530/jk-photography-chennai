@@ -6,7 +6,7 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Play, X } from "lucide-react";
 import { publicImageSrc } from "@/lib/image-src";
-import { brand } from "@/lib/data";
+import { useSiteContent } from "@/components/SiteContentProvider";
 import type { FilmItem } from "@/lib/media";
 
 type Props = {
@@ -14,6 +14,7 @@ type Props = {
 };
 
 export function FilmGrid({ films }: Props) {
+  const { contact } = useSiteContent();
   const [active, setActive] = useState<FilmItem | null>(null);
 
   return (
@@ -32,8 +33,8 @@ export function FilmGrid({ films }: Props) {
                 alt={film.subtitle || film.title}
                 fill
                 sizes="(max-width: 768px) 100vw, 33vw"
-                quality={75}
                 unoptimized
+                loading="lazy"
                 className="object-cover transition duration-700 group-hover:scale-[1.04]"
                 style={{ objectPosition: "center center" }}
               />
@@ -62,7 +63,7 @@ export function FilmGrid({ films }: Props) {
         {!films.length && (
           <div className="col-span-full rounded-3xl border border-dashed border-zinc-300 p-10 text-center text-zinc-500">
             Film highlights are being prepared. Meanwhile explore{" "}
-            <Link href={brand.youtube} className="underline">
+            <Link href={contact.youtube || "#"} className="underline">
               YouTube
             </Link>
             .

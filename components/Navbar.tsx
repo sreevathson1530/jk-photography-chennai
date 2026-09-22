@@ -6,10 +6,14 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Menu, X, Phone, MessageCircle } from "lucide-react";
-import { brand, navLinks } from "@/lib/data";
+import { navLinks } from "@/lib/data";
+import { useSiteContent } from "@/components/SiteContentProvider";
+import { telHref, waHref } from "@/lib/site-content";
 
 export function Navbar() {
   const pathname = usePathname();
+  const { studio, contact } = useSiteContent();
+  const primaryPhone = contact.phones[0] || contact.whatsapp;
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [pastHero, setPastHero] = useState(false);
@@ -92,7 +96,7 @@ export function Navbar() {
           </nav>
           <div className="flex gap-2 border-t border-zinc-100 px-5 py-4">
             <a
-              href={`https://wa.me/${brand.whatsapp}`}
+              href={waHref(contact.whatsapp)}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-2.5 text-[11px] font-medium tracking-[0.12em] text-white uppercase"
@@ -101,7 +105,7 @@ export function Navbar() {
               WhatsApp
             </a>
             <a
-              href={`tel:+91${brand.phones[0]}`}
+              href={telHref(primaryPhone)}
               className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-zinc-200 px-4 py-2.5 text-[11px] font-medium tracking-[0.12em] text-zinc-800 uppercase"
             >
               <Phone className="h-4 w-4" />
@@ -131,16 +135,16 @@ export function Navbar() {
           <Link
             href="/"
             className="relative z-10 flex shrink-0 items-center py-2"
-            aria-label="JK Photography home"
+            aria-label={`${studio.name} home`}
           >
             <Image
-              src="/logo.png?v=logo-transparent"
-              alt="JK Photography Chennai"
+              src="/logo.png"
+              alt={studio.name}
               width={220}
               height={48}
+              sizes="220px"
               className="h-8 w-auto max-h-9 object-contain object-left sm:h-9 sm:max-h-10 md:h-10 md:max-h-11"
               priority
-              unoptimized
             />
           </Link>
 
@@ -161,7 +165,7 @@ export function Navbar() {
 
           <div className="hidden items-center gap-3 lg:flex">
             <a
-              href={`tel:+91${brand.phones[0]}`}
+              href={telHref(primaryPhone)}
               className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2.5 text-[12px] font-medium tracking-[0.12em] text-zinc-800 uppercase transition hover:border-zinc-400"
             >
               <Phone className="h-3.5 w-3.5" aria-hidden />
@@ -177,7 +181,7 @@ export function Navbar() {
 
           <div className="flex items-center gap-2 lg:hidden">
             <a
-              href={`https://wa.me/${brand.whatsapp}`}
+              href={waHref(contact.whatsapp)}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Chat on WhatsApp"
@@ -186,8 +190,8 @@ export function Navbar() {
               <MessageCircle className="h-4 w-4" />
             </a>
             <a
-              href={`tel:+91${brand.phones[0]}`}
-              aria-label="Call JK Photography"
+              href={telHref(primaryPhone)}
+              aria-label={`Call ${studio.name}`}
               className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-900"
             >
               <Phone className="h-4 w-4" />

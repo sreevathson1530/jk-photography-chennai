@@ -4,8 +4,9 @@ import nextDynamic from "next/dynamic";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { Reveal } from "@/components/Reveal";
 import { ParallaxImage } from "@/components/ParallaxImage";
-import { brand, services, testimonials, whyUs } from "@/lib/data";
 import { getFilms, getGallery, getHeroes } from "@/lib/media";
+import { waHref } from "@/lib/site-content";
+import { getSiteContent } from "@/lib/site-content.server";
 
 const MasonryGallery = nextDynamic(
   () =>
@@ -18,12 +19,15 @@ const FilmGrid = nextDynamic(
   { loading: () => <div className="min-h-[320px]" aria-hidden /> }
 );
 
-export const dynamic = "force-dynamic";
-
-export default function HomePage() {
-  const heroes = getHeroes();
-  const gallery = getGallery();
-  const films = getFilms();
+export default async function HomePage() {
+  const [heroes, gallery, films, content] = await Promise.all([
+    getHeroes(),
+    getGallery(),
+    getFilms(),
+    getSiteContent(),
+  ]);
+  const { studio, contact, home, services, testimonials } = content;
+  const whatsapp = waHref(contact.whatsapp);
   const storiesImage = "/media/sections/stories.webp";
   const featureImageB = gallery[8]?.src || gallery[3]?.src || storiesImage;
 
@@ -42,21 +46,18 @@ export default function HomePage() {
         <div className="relative mx-auto grid max-w-7xl gap-12 lg:grid-cols-12 lg:gap-16">
           <Reveal className="lg:col-span-5">
             <p className="text-[11px] tracking-[0.3em] text-zinc-500 uppercase">
-              Why JK Photography
+              Why {studio.name}
             </p>
             <h2 className="mt-4 font-display text-3xl leading-tight text-zinc-950 sm:text-4xl md:text-5xl">
-              Lasting memories through breathtaking, soulful imagery
+              {home.whyHeadline}
             </h2>
           </Reveal>
           <Reveal className="lg:col-span-7" delay={0.1}>
             <p className="max-w-2xl text-lg leading-relaxed text-zinc-600">
-              We combine creativity, professionalism, and technical precision to
-              create timeless memories. From candid photography to cinematic
-              wedding films, we capture your unique love story with unmatched
-              quality — across Chennai, Kerala, and destinations worldwide.
+              {home.whyText}
             </p>
             <div className="mt-10 grid gap-6 sm:grid-cols-2">
-              {whyUs.map((item) => (
+              {home.whyPoints.map((item) => (
                 <div key={item.title} className="border-t border-zinc-200 pt-5">
                   <h3 className="font-display text-2xl text-zinc-900">
                     {item.title}
@@ -76,7 +77,7 @@ export default function HomePage() {
           <Reveal>
             <ParallaxImage
               src={storiesImage}
-              alt="Stories from JK Photography"
+              alt={`Stories from ${studio.name}`}
               className="aspect-[4/5] w-full"
             />
           </Reveal>
@@ -85,12 +86,10 @@ export default function HomePage() {
               Our Craft
             </p>
             <h2 className="mt-4 font-display text-3xl text-zinc-950 sm:text-4xl md:text-5xl">
-              Stories from JK
+              {home.craftHeadline}
             </h2>
             <p className="mt-4 text-base leading-relaxed text-zinc-600 sm:mt-5 sm:text-lg">
-              Premium wedding photography & filmmaking shaped by {brand.years}{" "}
-              years and {brand.weddings} celebrations. Every frame is composed
-              to feel immersive, intimate, and endlessly rewatchable.
+              {home.craftText}
             </p>
             <ul className="mt-8 space-y-4">
               {services.slice(0, 4).map((service) => (
@@ -216,11 +215,10 @@ export default function HomePage() {
               Let&apos;s Connect
             </p>
             <h2 className="mt-4 font-display text-3xl leading-tight text-zinc-950 sm:text-4xl">
-              Let&apos;s craft memories that last a lifetime
+              {home.ctaHeadline}
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-zinc-600 sm:mt-5 sm:text-base">
-              Share your date, venue, and vision — we&apos;ll curate the right
-              photo & film crew for your celebration.
+              {home.ctaText}
             </p>
             <div className="mt-7 flex flex-wrap justify-center gap-3 sm:mt-8">
               <Link
@@ -230,7 +228,7 @@ export default function HomePage() {
                 Contact Us
               </Link>
               <a
-                href={`https://wa.me/${brand.whatsapp}`}
+                href={whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-full border border-zinc-300 bg-white px-6 py-3 text-[12px] tracking-[0.18em] text-zinc-900 uppercase transition hover:border-zinc-500"
@@ -255,12 +253,9 @@ export default function HomePage() {
               Let&apos;s Connect
             </p>
             <h2 className="mt-4 font-display text-5xl text-zinc-950 md:text-6xl">
-              Let&apos;s craft memories that last a lifetime
+              {home.ctaHeadline}
             </h2>
-            <p className="mx-auto mt-5 max-w-xl text-zinc-600">
-              Share your date, venue, and vision — we&apos;ll curate the right
-              photo & film crew for your celebration.
-            </p>
+            <p className="mx-auto mt-5 max-w-xl text-zinc-600">{home.ctaText}</p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link
                 href="/contact"
@@ -269,7 +264,7 @@ export default function HomePage() {
                 Contact Us
               </Link>
               <a
-                href={`https://wa.me/${brand.whatsapp}`}
+                href={whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-full border border-zinc-300 bg-white/80 px-7 py-3.5 text-[12px] tracking-[0.18em] text-zinc-900 uppercase backdrop-blur transition hover:border-zinc-500"

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { brand } from "@/lib/data";
+import { useSiteContent } from "@/components/SiteContentProvider";
 import { heroImageSrc } from "@/lib/image-src";
 import type { HeroItem } from "@/lib/media";
 
@@ -13,6 +13,7 @@ type Props = {
 };
 
 export function HeroCarousel({ images }: Props) {
+  const { studio } = useSiteContent();
   const slides = images.length
     ? images
     : [
@@ -38,12 +39,12 @@ export function HeroCarousel({ images }: Props) {
   }, [slides.length]);
 
   const current = slides[index];
-  const src = heroImageSrc(current);
+  const next = slides.length > 1 ? slides[(index + 1) % slides.length] : null;
   const slideScale = current.scale ?? 1;
 
   return (
     <section className="relative h-[100svh] min-h-[520px] max-h-[900px] w-full overflow-hidden bg-[#0c0c0c] sm:min-h-[600px]">
-      <AnimatePresence mode="wait">
+      <AnimatePresence initial={false}>
         <motion.div
           key={current.id}
           className="absolute inset-0"
@@ -57,12 +58,13 @@ export function HeroCarousel({ images }: Props) {
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
         >
           <Image
-            src={src}
+            src={heroImageSrc(current)}
             alt={current.alt}
             fill
             priority={index === 0}
+            fetchPriority={index === 0 ? "high" : "auto"}
             sizes="100vw"
-            unoptimized
+            quality={85}
             className="object-cover"
             style={{ objectPosition: current.objectPosition || "center 30%" }}
           />
@@ -71,6 +73,21 @@ export function HeroCarousel({ images }: Props) {
         </motion.div>
       </AnimatePresence>
 
+      {/* Warm the browser cache for the upcoming slide so the crossfade never flashes */}
+      {next ? (
+        <div className="pointer-events-none absolute inset-0 opacity-0" aria-hidden>
+          <Image
+            src={heroImageSrc(next)}
+            alt=""
+            fill
+            sizes="100vw"
+            quality={85}
+            loading="lazy"
+            className="object-cover"
+          />
+        </div>
+      ) : null}
+
       <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-10 pt-24 sm:px-5 sm:pb-16 sm:pt-28 md:px-8 md:pb-20">
         <motion.p
           initial={{ opacity: 0, y: 16 }}
@@ -78,7 +95,8 @@ export function HeroCarousel({ images }: Props) {
           transition={{ delay: 0.2, duration: 0.7 }}
           className="mb-3 text-[10px] tracking-[0.28em] text-white/75 uppercase sm:mb-4 sm:text-[11px] sm:tracking-[0.35em]"
         >
-          Since {brand.since} · {brand.years} Years · {brand.weddings} Weddings
+          Since {studio.since} · {studio.years} Years · {studio.weddings}{" "}
+          Weddings
         </motion.p>
 
         <motion.h1
@@ -91,7 +109,7 @@ export function HeroCarousel({ images }: Props) {
           <span className="mt-1 block w-[160px] sm:w-[190px] md:w-[220px] lg:w-[250px]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/jk-monogram.png?v=brand-jk-4"
+              src="/jk-monogram.png"
               alt="JK"
               width={1600}
               height={746}
@@ -109,7 +127,9 @@ export function HeroCarousel({ images }: Props) {
           transition={{ delay: 0.5, duration: 0.7 }}
           className="mt-4 max-w-xl text-sm leading-relaxed text-white/85 sm:mt-5 sm:text-base md:text-lg"
         >
-          {brand.tagline}. Based in Chennai & Kerala — travelling worldwide.
+          {[studio.tagline.replace(/\.$/, ""), studio.heroLine]
+            .filter(Boolean)
+            .join(". ")}
         </motion.p>
 
         <motion.div

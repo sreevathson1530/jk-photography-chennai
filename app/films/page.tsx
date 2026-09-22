@@ -2,19 +2,22 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { FilmGrid } from "@/components/FilmGrid";
 import { Reveal } from "@/components/Reveal";
-import { brand } from "@/lib/data";
 import { getFilms } from "@/lib/media";
+import { getSiteContent } from "@/lib/site-content.server";
 
-export const dynamic = "force-dynamic";
+export async function generateMetadata(): Promise<Metadata> {
+  const { studio } = await getSiteContent();
+  return {
+    title: "Wedding Films",
+    description: `Cinematic wedding and pre-wedding film highlights by ${studio.name}.`,
+  };
+}
 
-export const metadata: Metadata = {
-  title: "Wedding Films",
-  description:
-    "Cinematic wedding and pre-wedding film highlights by JK Photography Chennai.",
-};
-
-export default function FilmsPage() {
-  const films = getFilms();
+export default async function FilmsPage() {
+  const [films, { studio, contact }] = await Promise.all([
+    getFilms(),
+    getSiteContent(),
+  ]);
   return (
     <div className="bg-white pt-[7.5rem] pb-24 md:pt-32 md:pb-28">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
@@ -26,15 +29,20 @@ export default function FilmsPage() {
             Cinematic stories in motion
           </h1>
           <p className="mt-5 text-lg leading-relaxed text-zinc-600">
-            Wedding and pre-wedding films from our YouTube channel{" "}
-            <a
-              href={brand.youtube}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-4"
-            >
-              @{brand.handle}
-            </a>
+            Wedding and pre-wedding films from our YouTube channel
+            {contact.youtube ? (
+              <>
+                {" "}
+                <a
+                  href={contact.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-4"
+                >
+                  @{studio.handle}
+                </a>
+              </>
+            ) : null}
             . Watch them here on the site.
           </p>
         </Reveal>
@@ -56,14 +64,16 @@ export default function FilmsPage() {
             >
               Book a Film Crew
             </Link>
-            <a
-              href={brand.youtube}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full border border-zinc-300 bg-white px-7 py-3.5 text-[12px] tracking-[0.18em] text-zinc-900 uppercase"
-            >
-              YouTube Channel
-            </a>
+            {contact.youtube ? (
+              <a
+                href={contact.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full border border-zinc-300 bg-white px-7 py-3.5 text-[12px] tracking-[0.18em] text-zinc-900 uppercase"
+              >
+                YouTube Channel
+              </a>
+            ) : null}
           </div>
         </Reveal>
       </div>

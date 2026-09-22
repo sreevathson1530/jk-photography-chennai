@@ -1,7 +1,7 @@
-import { readFileSync } from "node:fs";
-import path from "node:path";
-import manifestStatic from "./media-manifest.json";
-import { readYoutubeFilms } from "./youtube-store";
+import { unstable_cache } from "next/cache";
+import manifestSeed from "./media-manifest.json";
+import filmsSeed from "./youtube-films.json";
+import { readDoc, writeDoc } from "./content-store";
 
 export type GalleryCategory = "wedding" | "prewed" | "bride" | "bts";
 
@@ -41,42 +41,89 @@ export type FilmItem = {
   youtubeId?: string;
 };
 
-type Manifest = {
-  heroes?: HeroItem[];
-  gallery?: GalleryItem[];
+export type MediaManifest = {
+  generatedAt?: string;
+  heroes: HeroItem[];
+  gallery: GalleryItem[];
   films?: FilmItem[];
 };
 
-function loadManifest(): Manifest {
-  try {
-    const file = path.join(process.cwd(), "lib", "media-manifest.json");
-    return JSON.parse(readFileSync(file, "utf8")) as Manifest;
-  } catch {
-    return manifestStatic as Manifest;
-  }
+export const MEDIA_TAG = "media";
+export const FILMS_TAG = "films";
+
+/** Cache-bust query strings break the image optimizer; images are immutable anyway. */
+const stripQuery = (s: string) => (s ? s.split("?")[0] : s);
+
+function normalizeManifest(m: MediaManifest): MediaManifest {
+  return {
+    ...m,
+    heroes: (m.heroes ?? []).map((h) => ({
+      ...h,
+      src: stripQuery(h.src),
+      avif: stripQuery(h.avif),
+      jpg: stripQuery(h.jpg),
+    })),
+    gallery: (m.gallery ?? []).map((g) => ({
+      ...g,
+      src: stripQuery(g.src),
+      avif: stripQuery(g.avif),
+      jpg: stripQuery(g.jpg),
+    })),
+  };
 }
 
-export function getHeroes() {
-  return (loadManifest().heroes ?? []) as HeroItem[];
+/* ------------------------------------------------------------------ */
+/* Fresh readers/writers (admin API)                                   */
+/* ------------------------------------------------------------------ */
+
+export async function readManifestFresh(): Promise<MediaManifest> {
+  const saved = await readDoc<MediaManifest>("media-manifest");
+  return normalizeManifest(
+    saved && Array.isArray(saved.gallery)
+      ? saved
+      : (manifestSeed as unknown as MediaManifest)
+  );
 }
 
-export function getGallery() {
-  return (loadManifest().gallery ?? []) as GalleryItem[];
+export async function writeManifest(manifest: MediaManifest) {
+  await writeDoc("media-manifest", {
+    ...manifest,
+    generatedAt: new Date().toISOString(),
+  });
 }
 
-export function getFilms() {
-  return readYoutubeFilms();
+export async function readFilmsFresh(): Promise<FilmItem[]> {
+  const saved = await readDoc<{ films: FilmItem[] }>("youtube-films");
+  const films = saved && Array.isArray(saved.films) ? saved.films : null;
+  return films ?? ((filmsSeed as { films: FilmItem[] }).films ?? []);
 }
 
-/** @deprecated Use getHeroes() in server components */
-export const heroes = (manifestStatic.heroes ?? []) as HeroItem[];
-/** @deprecated Use getGallery() in server components */
-export const gallery = (manifestStatic.gallery ?? []) as GalleryItem[];
-/** @deprecated Use getFilms() in server components */
-export const films = readYoutubeFilms();
+export async function writeFilms(films: FilmItem[]) {
+  await writeDoc("youtube-films", { films });
+}
 
-export function getGalleryByCategory(category: string) {
-  const items = getGallery();
+/* ------------------------------------------------------------------ */
+/* Cached readers (public pages)                                       */
+/* ------------------------------------------------------------------ */
+
+const getManifest = unstable_cache(readManifestFresh, ["media-manifest"], {
+  tags: [MEDIA_TAG],
+});
+
+export const getFilms = unstable_cache(readFilmsFresh, ["youtube-films"], {
+  tags: [FILMS_TAG],
+});
+
+export async function getHeroes(): Promise<HeroItem[]> {
+  return (await getManifest()).heroes;
+}
+
+export async function getGallery(): Promise<GalleryItem[]> {
+  return (await getManifest()).gallery;
+}
+
+export async function getGalleryByCategory(category: string) {
+  const items = await getGallery();
   if (category === "all") return items;
   return items.filter((item) => item.category === category);
 }

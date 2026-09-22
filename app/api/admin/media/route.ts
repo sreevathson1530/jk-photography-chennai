@@ -1,22 +1,24 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
-import {
-  deleteGalleryFiles,
-  readManifest,
-  writeManifest,
-} from "@/lib/manifest-store";
-import { readYoutubeFilms, writeYoutubeFilms } from "@/lib/youtube-store";
+import { readFilmsFresh, readManifestFresh, writeFilms } from "@/lib/media";
+import { removeGalleryItem } from "@/lib/media-processing";
+import { revalidateSite } from "@/lib/revalidate";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   if (!(await isAdminAuthenticated())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const manifest = await readManifest();
-  const photos = manifest.gallery.filter((g) => g.id.startsWith("img-"));
-  const videos = readYoutubeFilms();
+  const [manifest, videos] = await Promise.all([
+    readManifestFresh(),
+    readFilmsFresh(),
+  ]);
 
+  // Newest first so a fresh upload is visible at the top.
+  const photos = [...manifest.gallery].reverse();
   return NextResponse.json({ photos, videos });
 }
 
@@ -25,30 +27,37 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { type, id } = await request.json();
-
-  if (type === "photo") {
-    if (!id?.startsWith("img-")) {
-      return NextResponse.json({ error: "Invalid photo id" }, { status: 400 });
-    }
-    const manifest = await readManifest();
-    manifest.gallery = manifest.gallery.filter((g) => g.id !== id);
-    await deleteGalleryFiles(id);
-    await writeManifest(manifest);
-  } else if (type === "video") {
-    const films = readYoutubeFilms();
-    const film = films.find((f) => f.id === id);
-    if (!film) {
-      return NextResponse.json({ error: "Film not found" }, { status: 404 });
-    }
-    await writeYoutubeFilms(films.filter((f) => f.id !== id));
-  } else {
-    return NextResponse.json({ error: "Invalid type" }, { status: 400 });
+  const body = (await request.json().catch(() => ({}))) as {
+    type?: string;
+    id?: string;
+  };
+  const { type, id } = body;
+  if (!id) {
+    return NextResponse.json({ error: "Missing id" }, { status: 400 });
   }
 
-  revalidatePath("/");
-  revalidatePath("/portfolio");
-  revalidatePath("/films");
+  try {
+    if (type === "photo") {
+      await removeGalleryItem(id);
+      revalidateSite(["media"]);
+    } else if (type === "video") {
+      const films = await readFilmsFresh();
+      if (!films.some((f) => f.id === id)) {
+        return NextResponse.json({ error: "Film not found" }, { status: 404 });
+      }
+      await writeFilms(films.filter((f) => f.id !== id));
+      revalidateSite(["films"]);
+    } else {
+      return NextResponse.json({ error: "Invalid type" }, { status: 400 });
+    }
+  } catch (err) {
+    console.error("Delete failed:", err);
+    const message = err instanceof Error ? err.message : "Delete failed";
+    return NextResponse.json(
+      { error: `Could not delete: ${message}` },
+      { status: 500 }
+    );
+  }
 
   return NextResponse.json({ ok: true });
 }

@@ -1,15 +1,12 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
-import {
-  fetchYouTubeTitle,
-  filmFromYouTube,
-  readYoutubeFilms,
-  writeYoutubeFilms,
-} from "@/lib/youtube-store";
+import { readFilmsFresh, writeFilms } from "@/lib/media";
+import { fetchYouTubeTitle, filmFromYouTube } from "@/lib/youtube-store";
 import { parseYouTubeId } from "@/lib/youtube";
+import { revalidateSite } from "@/lib/revalidate";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   if (!(await isAdminAuthenticated())) {
@@ -26,32 +23,33 @@ export async function POST(request: Request) {
     );
   }
 
-  const category =
-    body.category === "prewed" ? "prewed" : "wedding";
+  const category = body.category === "prewed" ? "prewed" : "wedding";
 
-  const films = readYoutubeFilms();
-  if (films.some((f) => f.youtubeId === youtubeId)) {
+  try {
+    const films = await readFilmsFresh();
+    if (films.some((f) => f.youtubeId === youtubeId)) {
+      return NextResponse.json(
+        { error: "This YouTube film is already in the list." },
+        { status: 409 }
+      );
+    }
+
+    const oembedTitle = await fetchYouTubeTitle(youtubeId);
+    const title =
+      String(body.title || "").trim() || oembedTitle || "Wedding Film";
+    const subtitle = String(body.subtitle || "").trim();
+
+    const item = filmFromYouTube({ youtubeId, title, subtitle, category });
+    await writeFilms([item, ...films]);
+    revalidateSite(["films"]);
+
+    return NextResponse.json({ ok: true, item });
+  } catch (err) {
+    console.error("Add film failed:", err);
+    const message = err instanceof Error ? err.message : "Could not add film";
     return NextResponse.json(
-      { error: "This YouTube film is already in the list." },
-      { status: 409 }
+      { error: `Could not add film: ${message}` },
+      { status: 500 }
     );
   }
-
-  const oembedTitle = await fetchYouTubeTitle(youtubeId);
-  const title = String(body.title || "").trim() || oembedTitle || "Wedding Film";
-  const subtitle = String(body.subtitle || "").trim();
-
-  const item = filmFromYouTube({
-    youtubeId,
-    title,
-    subtitle,
-    category,
-  });
-
-  await writeYoutubeFilms([item, ...films]);
-
-  revalidatePath("/");
-  revalidatePath("/films");
-
-  return NextResponse.json({ ok: true, item });
 }

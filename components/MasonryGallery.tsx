@@ -237,11 +237,15 @@ export function MasonryGallery({
                     setZoom((z) => (z > 1 ? 1 : 2))
                   }
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={openItem.jpg || openItem.src}
+                  <Image
+                    src={publicImageSrc(openItem.jpg || openItem.src)}
                     alt={openItem.title}
-                    className="max-h-[calc(100svh-7rem)] max-w-[min(96vw,1400px)] object-contain select-none"
+                    width={1600}
+                    height={Math.round(1600 / (openItem.aspect || 0.75))}
+                    sizes="(max-width: 1400px) 96vw, 1400px"
+                    quality={90}
+                    priority
+                    className="h-auto max-h-[calc(100svh-7rem)] w-auto max-w-[min(96vw,1400px)] object-contain select-none"
                     draggable={false}
                   />
                 </motion.div>

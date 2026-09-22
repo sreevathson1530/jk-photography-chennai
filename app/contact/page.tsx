@@ -1,15 +1,22 @@
 import type { Metadata } from "next";
 import { ContactForm } from "@/components/ContactForm";
 import { Reveal } from "@/components/Reveal";
-import { brand } from "@/lib/data";
+import { displayPhone, telHref, waHref } from "@/lib/site-content";
+import { getSiteContent } from "@/lib/site-content.server";
 import { MapPin, Phone, Mail, Instagram, MessageCircle } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "Contact",
-  description: `Book ${brand.name} — call, WhatsApp, or send an inquiry for weddings across Chennai, Kerala, and worldwide.`,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { studio } = await getSiteContent();
+  return {
+    title: "Contact",
+    description: `Book ${studio.name} — call, WhatsApp, or send an inquiry for weddings across ${studio.locations.join(", ")}, and worldwide.`,
+  };
+}
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const { studio, contact } = await getSiteContent();
+  const primaryPhone = contact.phones[0] || contact.whatsapp;
+
   return (
     <div className="bg-white pt-[7.5rem] pb-24 md:pt-32 md:pb-28">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
@@ -37,69 +44,94 @@ export default function ContactPage() {
                 Studio details
               </h2>
               <ul className="mt-8 space-y-5 text-sm text-zinc-700">
-                <li className="flex gap-3">
-                  <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
-                  <span>{brand.address}</span>
-                </li>
-                <li className="flex gap-3">
-                  <Phone className="mt-0.5 h-4 w-4 shrink-0" />
-                  <div className="space-y-1">
-                    {brand.phones.map((p) => (
+                {contact.address ? (
+                  <li className="flex gap-3">
+                    <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
+                    {contact.mapsUrl ? (
                       <a
-                        key={p}
-                        href={`tel:+91${p}`}
-                        className="block transition hover:text-zinc-950"
+                        href={contact.mapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="transition hover:text-zinc-950"
                       >
-                        +91 {p}
+                        {contact.address}
                       </a>
-                    ))}
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <Mail className="mt-0.5 h-4 w-4 shrink-0" />
-                  <a href={`mailto:${brand.email}`}>{brand.email}</a>
-                </li>
-                <li className="flex gap-3">
-                  <Instagram className="mt-0.5 h-4 w-4 shrink-0" />
-                  <a
-                    href={brand.instagram}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    @{brand.handle}
-                  </a>
-                </li>
+                    ) : (
+                      <span>{contact.address}</span>
+                    )}
+                  </li>
+                ) : null}
+                {contact.phones.length ? (
+                  <li className="flex gap-3">
+                    <Phone className="mt-0.5 h-4 w-4 shrink-0" />
+                    <div className="space-y-1">
+                      {contact.phones.map((p) => (
+                        <a
+                          key={p}
+                          href={telHref(p)}
+                          className="block transition hover:text-zinc-950"
+                        >
+                          {displayPhone(p)}
+                        </a>
+                      ))}
+                    </div>
+                  </li>
+                ) : null}
+                {contact.email ? (
+                  <li className="flex gap-3">
+                    <Mail className="mt-0.5 h-4 w-4 shrink-0" />
+                    <a href={`mailto:${contact.email}`}>{contact.email}</a>
+                  </li>
+                ) : null}
+                {contact.instagram ? (
+                  <li className="flex gap-3">
+                    <Instagram className="mt-0.5 h-4 w-4 shrink-0" />
+                    <a
+                      href={contact.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      @{studio.handle}
+                    </a>
+                  </li>
+                ) : null}
               </ul>
 
               <div className="mt-8 flex flex-col gap-3">
-                <a
-                  href={`https://wa.me/${brand.whatsapp}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3.5 text-[12px] tracking-[0.16em] text-white uppercase"
-                >
-                  <MessageCircle className="h-4 w-4" />
-                  WhatsApp Now
-                </a>
-                <a
-                  href={`tel:+91${brand.phones[0]}`}
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-zinc-300 bg-white px-5 py-3.5 text-[12px] tracking-[0.16em] text-zinc-900 uppercase"
-                >
-                  <Phone className="h-4 w-4" />
-                  Call Studio
-                </a>
+                {contact.whatsapp ? (
+                  <a
+                    href={waHref(contact.whatsapp)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3.5 text-[12px] tracking-[0.16em] text-white uppercase"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    WhatsApp Now
+                  </a>
+                ) : null}
+                {primaryPhone ? (
+                  <a
+                    href={telHref(primaryPhone)}
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-zinc-300 bg-white px-5 py-3.5 text-[12px] tracking-[0.16em] text-zinc-900 uppercase"
+                  >
+                    <Phone className="h-4 w-4" />
+                    Call Studio
+                  </a>
+                ) : null}
               </div>
             </div>
 
-            <div className="mt-6 overflow-hidden border border-zinc-200">
-              <iframe
-                title="JK Photography location map"
-                src={brand.mapsEmbed}
-                className="h-72 w-full border-0"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
-            </div>
+            {contact.mapsEmbed ? (
+              <div className="mt-6 overflow-hidden border border-zinc-200">
+                <iframe
+                  title={`${studio.name} location map`}
+                  src={contact.mapsEmbed}
+                  className="h-72 w-full border-0"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            ) : null}
           </Reveal>
         </div>
       </div>

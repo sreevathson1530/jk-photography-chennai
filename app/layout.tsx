@@ -4,7 +4,8 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { FloatingCTA } from "@/components/FloatingCTA";
 import { PublicOnly } from "@/components/PublicOnly";
-import { brand } from "@/lib/data";
+import { SiteContentProvider } from "@/components/SiteContentProvider";
+import { getSiteContent } from "@/lib/site-content.server";
 import "./globals.css";
 
 const bodoni = Bodoni_Moda({
@@ -28,41 +29,47 @@ const logoScript = Great_Vibes({
   preload: false,
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: `${brand.name} | Cinematic Wedding Filmmaking Crew`,
-    template: `%s | ${brand.name}`,
-  },
-  description: `${brand.tagline}. Since ${brand.since} · ${brand.years} Years · ${brand.weddings} Weddings. Based in Chennai & Kerala, travelling worldwide.`,
-  metadataBase: new URL("https://jkphotographychennai.com"),
-  openGraph: {
-    title: brand.name,
-    description: brand.tagline,
-    type: "website",
-    locale: "en_IN",
-  },
-  icons: {
-    icon: "/logo.png",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { studio } = await getSiteContent();
+  return {
+    title: {
+      default: `${studio.name} | ${studio.tagline}`,
+      template: `%s | ${studio.name}`,
+    },
+    description: `${studio.tagline}. Since ${studio.since} · ${studio.years} Years · ${studio.weddings} Weddings. ${studio.heroLine}`,
+    metadataBase: new URL("https://jkphotographychennai.com"),
+    openGraph: {
+      title: studio.name,
+      description: studio.tagline,
+      type: "website",
+      locale: "en_IN",
+    },
+    icons: {
+      icon: "/logo.png",
+    },
+  };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const content = await getSiteContent();
   return (
     <html
       lang="en"
       className={`${bodoni.variable} ${jost.variable} ${logoScript.variable} h-full`}
     >
       <body className="min-h-full overflow-x-hidden bg-white font-sans text-zinc-900 antialiased">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <PublicOnly>
-          <Footer />
-          <FloatingCTA />
-        </PublicOnly>
+        <SiteContentProvider value={content}>
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <PublicOnly>
+            <Footer content={content} />
+            <FloatingCTA />
+          </PublicOnly>
+        </SiteContentProvider>
       </body>
     </html>
   );

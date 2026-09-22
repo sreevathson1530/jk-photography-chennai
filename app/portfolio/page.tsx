@@ -2,17 +2,21 @@ import type { Metadata } from "next";
 import { MasonryGallery } from "@/components/MasonryGallery";
 import { Reveal } from "@/components/Reveal";
 import { getGallery } from "@/lib/media";
+import { getSiteContent } from "@/lib/site-content.server";
 
-export const dynamic = "force-dynamic";
+export async function generateMetadata(): Promise<Metadata> {
+  const { studio } = await getSiteContent();
+  return {
+    title: "Portfolio",
+    description: `Explore ${studio.name}'s curated wedding, pre-wedding, bridal, and behind-the-scenes portfolio.`,
+  };
+}
 
-export const metadata: Metadata = {
-  title: "Portfolio",
-  description:
-    "Explore JK Photography's curated wedding, pre-wedding, bridal, and behind-the-scenes portfolio.",
-};
-
-export default function PortfolioPage() {
-  const gallery = getGallery();
+export default async function PortfolioPage() {
+  const [gallery, { studio }] = await Promise.all([
+    getGallery(),
+    getSiteContent(),
+  ]);
   return (
     <div className="bg-white pt-[7.5rem] pb-24 md:pt-32 md:pb-28">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
@@ -25,8 +29,8 @@ export default function PortfolioPage() {
           </h1>
           <p className="mt-5 text-lg leading-relaxed text-zinc-600">
             Discover wedding celebrations, pre-wedding films stills, bridal
-            portraiture, and behind-the-scenes craft from JK Photography —
-            Chennai, Kerala, and beyond.
+            portraiture, and behind-the-scenes craft from {studio.name} —{" "}
+            {studio.locations.join(", ")}, and beyond.
           </p>
         </Reveal>
 

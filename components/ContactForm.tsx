@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { Send, CheckCircle2 } from "lucide-react";
-import { brand } from "@/lib/data";
+import { useSiteContent } from "@/components/SiteContentProvider";
+import { displayPhone, waHref } from "@/lib/site-content";
 
 export function ContactForm() {
+  const { studio, contact } = useSiteContent();
   const [submitted, setSubmitted] = useState(false);
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -17,10 +19,10 @@ export function ContactForm() {
     const message = String(form.get("message") || "");
 
     const text = encodeURIComponent(
-      `Hello JK Photography,\n\nName: ${name}\nPhone: ${phone}\nEvent: ${eventType}\nDate: ${eventDate}\n\n${message}`
+      `Hello ${studio.name},\n\nName: ${name}\nPhone: ${phone}\nEvent: ${eventType}\nDate: ${eventDate}\n\n${message}`
     );
 
-    window.open(`https://wa.me/${brand.whatsapp}?text=${text}`, "_blank");
+    window.open(waHref(contact.whatsapp, text), "_blank");
     setSubmitted(true);
   };
 
@@ -33,9 +35,9 @@ export function ContactForm() {
           WhatsApp should open with your details. If it did not, message us on{" "}
           <a
             className="underline underline-offset-4"
-            href={`https://wa.me/${brand.whatsapp}`}
+            href={waHref(contact.whatsapp)}
           >
-            +91 {brand.phones[0]}
+            {displayPhone(contact.phones[0] || contact.whatsapp)}
           </a>
           .
         </p>

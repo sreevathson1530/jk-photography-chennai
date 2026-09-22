@@ -1,9 +1,12 @@
-/** Strip cache-bust query strings for stable image URLs. */
+/** Strip cache-bust query strings — the image optimizer rejects them. */
 export function publicImageSrc(src: string) {
   return src.split("?")[0];
 }
 
-/** Hero covers must bypass Next optimizer — Vercel returns 400 for these JPGs. */
+/**
+ * Source for hero covers. Prefer the JPG: the optimizer decodes it fastest and
+ * serves AVIF/WebP at the exact viewport width.
+ */
 export function heroImageSrc(item: { avif?: string; jpg?: string; src: string }) {
-  return publicImageSrc(item.avif || item.jpg || item.src);
+  return publicImageSrc(item.jpg || item.src || item.avif || "");
 }

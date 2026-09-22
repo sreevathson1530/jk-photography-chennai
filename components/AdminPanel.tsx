@@ -12,6 +12,10 @@ import {
   Youtube,
 } from "lucide-react";
 import { parseYouTubeId, youtubeThumb } from "@/lib/youtube";
+import { compressImageForUpload } from "@/lib/client-image";
+import { SiteDetailsForm } from "@/components/admin/SiteDetailsForm";
+
+type Tab = "photos" | "films" | "details";
 
 type Photo = {
   id: string;
@@ -48,7 +52,7 @@ export function AdminPanel() {
   const [checking, setChecking] = useState(true);
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
-  const [tab, setTab] = useState<"photos" | "films">("photos");
+  const [tab, setTab] = useState<Tab>("photos");
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [photoCategory, setPhotoCategory] = useState("wedding");
@@ -113,31 +117,52 @@ export function AdminPanel() {
     setVideos([]);
   };
 
-  const uploadPhoto = async (file: File) => {
-    if (!file.type.startsWith("image/")) {
+  const uploadPhotos = async (files: File[]) => {
+    const images = files.filter((f) => f.type.startsWith("image/"));
+    if (!images.length) {
       setError("Please choose a photo (JPG or PNG). Videos are not accepted here.");
       return;
     }
     setUploading(true);
     setError("");
-    setMessage("Uploading photo…");
-    const form = new FormData();
-    form.append("type", "photo");
-    form.append("file", file);
-    form.append("category", photoCategory);
+    let done = 0;
+    const failed: string[] = [];
 
-    try {
-      const res = await fetch("/api/admin/upload", { method: "POST", body: form });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Upload failed");
-      setMessage("Photo added to the portfolio.");
-      await loadMedia();
-    } catch (err) {
-      setMessage("");
-      setError(err instanceof Error ? err.message : "Upload failed");
-    } finally {
-      setUploading(false);
+    for (const original of images) {
+      setMessage(
+        images.length > 1
+          ? `Uploading photo ${done + 1} of ${images.length}…`
+          : "Uploading photo…"
+      );
+      try {
+        const file = await compressImageForUpload(original);
+        const form = new FormData();
+        form.append("type", "photo");
+        form.append("file", file);
+        form.append("category", photoCategory);
+        const res = await fetch("/api/admin/upload", { method: "POST", body: form });
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 401) {
+          setAuthed(false);
+          return;
+        }
+        if (!res.ok) throw new Error(data.error || "Upload failed");
+        done += 1;
+      } catch (err) {
+        failed.push(
+          `${original.name}: ${err instanceof Error ? err.message : "Upload failed"}`
+        );
+      }
     }
+
+    await loadMedia();
+    setUploading(false);
+    setMessage(
+      done
+        ? `${done} photo${done > 1 ? "s" : ""} added to the portfolio.`
+        : ""
+    );
+    setError(failed.join(" · "));
   };
 
   const addFilm = async (e: React.FormEvent) => {
@@ -159,7 +184,11 @@ export function AdminPanel() {
           category: filmCategory,
         }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        setAuthed(false);
+        return;
+      }
       if (!res.ok) throw new Error(data.error || "Could not add film");
       setYoutubeUrl("");
       setFilmTitle("");
@@ -178,21 +207,41 @@ export function AdminPanel() {
       return;
     }
     setDeletingId(id);
-    const res = await fetch("/api/admin/media", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type, id }),
-    });
-    if (res.ok) {
-      setError("");
-      setMessage("Removed.");
+    setError("");
+    try {
+      const res = await fetch("/api/admin/media", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        setAuthed(false);
+        return;
+      }
+      if (!res.ok) throw new Error(data.error || "Could not delete. Try again.");
+      setMessage(`Removed “${label}” from the website.`);
       await loadMedia();
-    } else {
+    } catch (err) {
       setMessage("");
-      setError("Could not delete. Try again.");
+      setError(err instanceof Error ? err.message : "Could not delete. Try again.");
+    } finally {
+      setDeletingId(null);
     }
-    setDeletingId(null);
   };
+
+  const switchTab = (next: Tab) => {
+    setTab(next);
+    setError("");
+    setMessage("");
+  };
+
+  const tabClass = (t: Tab) =>
+    `rounded-full px-5 py-2.5 text-sm ${
+      tab === t
+        ? "bg-zinc-950 text-white"
+        : "border border-zinc-200 bg-white text-zinc-700"
+    }`;
 
   if (checking) {
     return (
@@ -212,7 +261,7 @@ export function AdminPanel() {
           Admin
         </h1>
         <p className="mt-2 text-center text-sm text-zinc-500">
-          Sign in to manage photos and YouTube films
+          Sign in to manage photos, films and studio details
         </p>
         <form onSubmit={login} className="mt-8 space-y-4">
           <input
@@ -248,16 +297,18 @@ export function AdminPanel() {
             Studio Admin
           </h1>
           <p className="mt-1 max-w-xl text-sm text-zinc-500">
-            Photos go in the portfolio. Films are YouTube links only — MP4 files
-            are not accepted.
+            Add or remove portfolio photos, add YouTube films, and edit every
+            detail on the website. Changes go live within a few seconds.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Link
-            href="/films"
+            href="/"
+            target="_blank"
             className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-700"
           >
-            View films page
+            View website
+            <ExternalLink className="h-3.5 w-3.5" />
           </Link>
           <button
             type="button"
@@ -270,45 +321,28 @@ export function AdminPanel() {
         </div>
       </div>
 
-      <div className="mb-6 flex gap-2">
-        <button
-          type="button"
-          onClick={() => {
-            setTab("photos");
-            setError("");
-            setMessage("");
-          }}
-          className={`rounded-full px-5 py-2.5 text-sm ${
-            tab === "photos"
-              ? "bg-zinc-950 text-white"
-              : "border border-zinc-200 bg-white text-zinc-700"
-          }`}
-        >
+      <div className="mb-6 flex flex-wrap gap-2">
+        <button type="button" onClick={() => switchTab("photos")} className={tabClass("photos")}>
           Photos ({photos.length})
         </button>
-        <button
-          type="button"
-          onClick={() => {
-            setTab("films");
-            setError("");
-            setMessage("");
-          }}
-          className={`rounded-full px-5 py-2.5 text-sm ${
-            tab === "films"
-              ? "bg-zinc-950 text-white"
-              : "border border-zinc-200 bg-white text-zinc-700"
-          }`}
-        >
+        <button type="button" onClick={() => switchTab("films")} className={tabClass("films")}>
           Films ({videos.length})
+        </button>
+        <button type="button" onClick={() => switchTab("details")} className={tabClass("details")}>
+          Website details
         </button>
       </div>
 
-      {message ? (
+      {tab === "details" ? (
+        <SiteDetailsForm onUnauthorized={() => setAuthed(false)} />
+      ) : null}
+
+      {tab !== "details" && message ? (
         <p className="mb-4 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
           {message}
         </p>
       ) : null}
-      {error ? (
+      {tab !== "details" && error ? (
         <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </p>
@@ -316,9 +350,10 @@ export function AdminPanel() {
 
       {tab === "photos" ? (
         <section className="mb-10 rounded-2xl border border-zinc-200 bg-[#FCFBF9] p-5 sm:p-6">
-          <p className="text-sm font-medium text-zinc-900">Add a photo</p>
+          <p className="text-sm font-medium text-zinc-900">Add photos</p>
           <p className="mt-1 mb-4 text-sm text-zinc-500">
-            Choose a category, then drop a JPG or PNG. It appears in Portfolio.
+            Choose a category, then drop one or more JPG/PNG photos. They are
+            resized automatically and appear in the Portfolio.
           </p>
           <div className="mb-4 flex flex-wrap gap-2">
             {PHOTO_CATEGORIES.map((c) => (
@@ -345,8 +380,8 @@ export function AdminPanel() {
             onDrop={(e) => {
               e.preventDefault();
               setDragOver(false);
-              const file = e.dataTransfer.files?.[0];
-              if (file) void uploadPhoto(file);
+              const files = Array.from(e.dataTransfer.files || []);
+              if (files.length) void uploadPhotos(files);
             }}
             className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed bg-white px-6 py-10 transition ${
               dragOver ? "border-zinc-900" : "border-zinc-300 hover:border-zinc-400"
@@ -358,22 +393,25 @@ export function AdminPanel() {
               <ImagePlus className="h-8 w-8 text-zinc-400" />
             )}
             <span className="text-sm text-zinc-600">
-              Drop a photo here, or tap to choose (JPG, PNG)
+              Drop photos here, or tap to choose (JPG, PNG)
             </span>
             <input
               type="file"
               accept="image/jpeg,image/png,image/webp"
+              multiple
               className="hidden"
               disabled={uploading}
               onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) void uploadPhoto(file);
+                const files = Array.from(e.target.files || []);
+                if (files.length) void uploadPhotos(files);
                 e.target.value = "";
               }}
             />
           </label>
         </section>
-      ) : (
+      ) : null}
+
+      {tab === "films" ? (
         <section className="mb-10 rounded-2xl border border-zinc-200 bg-[#FCFBF9] p-5 sm:p-6">
           <p className="text-sm font-medium text-zinc-900">Add a YouTube film</p>
           <p className="mt-1 mb-4 text-sm text-zinc-500">
@@ -460,7 +498,7 @@ export function AdminPanel() {
             </button>
           </form>
         </section>
-      )}
+      ) : null}
 
       {tab === "photos" ? (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
@@ -471,11 +509,13 @@ export function AdminPanel() {
             >
               <div className="relative aspect-[3/4]">
                 <Image
-                  src={photo.jpg || photo.src}
+                  src={(photo.src || photo.jpg).split("?")[0]}
                   alt={photo.title}
                   fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                  quality={75}
+                  loading="lazy"
                   className="object-cover"
-                  unoptimized
                 />
               </div>
               <p className="truncate px-2 py-2 text-xs capitalize text-zinc-600">
@@ -498,11 +538,13 @@ export function AdminPanel() {
           ))}
           {!photos.length ? (
             <p className="col-span-full py-8 text-center text-sm text-zinc-500">
-              No uploaded photos yet. Add one above.
+              No photos yet. Add some above.
             </p>
           ) : null}
         </div>
-      ) : (
+      ) : null}
+
+      {tab === "films" ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {videos.map((video) => (
             <div
@@ -559,7 +601,7 @@ export function AdminPanel() {
             </p>
           ) : null}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
